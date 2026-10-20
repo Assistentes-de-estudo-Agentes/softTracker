@@ -1,7 +1,7 @@
 {
-  "projeto": "projeto",
+  "projeto": "D:\\Automoções Faculdade\\softTracker\\projeto",
   "specs": [
-    "spec/spec.yaml"
+    "D:\\Automoções Faculdade\\softTracker\\spec\\spec.yaml"
   ],
   "estado": "estado"
 }

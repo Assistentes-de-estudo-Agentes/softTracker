@@ -1,0 +1,35 @@
+{
+  "projeto": "Projeto ainda não configurado",
+  "ultimo_sync": "2026-10-20T18:39:23",
+  "spec_hash": "29389ff902d016289cff6382820b10b827733bbb467d7592c53db777d0776bd0",
+  "codigo_fp": "1fa117f8d41d6032",
+  "resumo": {
+    "tasks_total": 0,
+    "tasks_feitas": 0,
+    "por_status": {
+      "feita": 0,
+      "parcial": 0,
+      "nao_feita": 0,
+      "revalidar": 0
+    },
+    "progresso_tasks": 0,
+    "criterios_total": 0,
+    "criterios_atendidos": 0,
+    "progresso_criterios": 0,
+    "arquivos": 1,
+    "nos_de_codigo": 0
+  },
+  "tasks": {},
+  "grafo_tasks": {
+    "nos": [],
+    "arestas": []
+  },
+  "requisitos": [],
+  "uml": [],
+  "codigo_sem_task": [],
+  "pendentes_ia": [],
+  "avisos": [],
+  "avisos_spec": [],
+  "ia_usada": 0,
+  "mudancas": []
+}
