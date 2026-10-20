@@ -1,0 +1,17 @@
+# Especificação inicial do seu projeto.
+# Substitua o conteúdo abaixo pelos requisitos, casos de uso e tasks reais.
+# Enquanto estiver vazio, o dashboard mostrará 0 tasks e nenhuma stack detectada.
+projeto: Projeto ainda não configurado
+
+# A stack pode ser detectada automaticamente pelos arquivos em projeto/.
+# Preencha manualmente apenas para declarar tecnologias que não possam ser inferidas.
+# stack:
+#   backend: "Java + Spring Boot"
+#   frontend: "Angular"
+#   banco_de_dados: "PostgreSQL"
+
+ignorar: ["*.md", "tests/**"]
+requisitos: []
+casos_de_uso: []
+uml: []
+tasks: []

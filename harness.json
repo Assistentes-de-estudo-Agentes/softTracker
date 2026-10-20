@@ -1,0 +1,7 @@
+{
+  "projeto": "projeto",
+  "specs": [
+    "spec/spec.yaml"
+  ],
+  "estado": "estado"
+}
