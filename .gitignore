@@ -1,0 +1,8 @@
+__pycache__/
+*.py[cod]
+*.bak
+.estado/
+estado/
+
+harness.json
+harness.json.tmp

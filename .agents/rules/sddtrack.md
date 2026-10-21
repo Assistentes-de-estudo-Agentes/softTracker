@@ -1,5 +1,6 @@
-# sddtrack — regras fixas
-- A pasta `projeto/` é o código do produto e só é lida pelo harness. Não a modifique sem pedido explícito do usuário.
-- A pasta `estado/` é gerada pelo `harness.py`; nunca a edite manualmente.
-- Perguntas sobre progresso, "o que falta" ou "qual a próxima task" devem ser respondidas rodando `harness.py status`/`proxima` (skill `sddtrack`), nunca de memória.
-- Código presente em `projeto/` já foi revisado: não rode testes nem valide qualidade ao avaliar tasks.
+# Regras do workspace SDDTrack
+- Use `harness.py` para sincronizar a especificação, o código e o estado.
+- Trate correspondências por nome/rota como evidência estrutural; comportamento funcional precisa de validação adicional.
+- Não invente nós nem edite manualmente os arquivos de estado.
+- Faça julgamentos explícitos para critérios sem evidência determinística.
+- Ao alterar código, sincronize novamente e revise os critérios afetados no grafo de rastreabilidade.
