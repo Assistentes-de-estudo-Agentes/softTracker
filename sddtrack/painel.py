@@ -28,8 +28,8 @@ def servir(cfg, porta=8765, abrir=True):
                 return cache["estado"]  # no máximo uma indexação a cada 2 s
             try:
                 spec = spec_mod.carregar(cfg["specs"])
-                fp = indexer.indexar(cfg["projeto"], spec["ignorar"])["fp"]
-                chave = (fp, spec["hash"], _mtime(cfg, est.MANUAIS), _mtime(cfg, est.NEGATIVOS))
+                fp = indexer.indexar(cfg["projeto"], spec["ignorar"], anterior=est.carregar_codigo(cfg))["fp"]
+                chave = (fp, spec["hash"], _mtime(cfg, est.MANUAIS), _mtime(cfg, est.NEGATIVOS), _mtime(cfg, est.TESTES))
                 cache["checado"] = time.time()
                 if forcar or chave != cache["chave"] or cache["estado"] is None:
                     with est.trava(cfg):

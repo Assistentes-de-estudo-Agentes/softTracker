@@ -1,47 +1,43 @@
 ---
 name: sddtrack
-description: Acompanha o desenvolvimento do projeto vinculando a especificação (tasks, critérios, casos de uso, UML) ao código da pasta projeto/. Use quando o usuário perguntar o que já foi feito ou falta, escolher/ir para uma task, pedir status ou progresso, atualizar a análise, ou quando um critério precisar de julgamento.
+description: Acompanha o desenvolvimento relacionando critérios de aceitação, requisitos, casos de uso, tasks e evidências do código. Use para analisar progresso, pendências e impacto de alterações.
 ---
 
-# sddtrack — spec ↔ código
+# sddtrack — rastreabilidade entre especificação e código
 
-Você é o curador. O script `harness.py` (na raiz do workspace) faz a parte determinística; **você faz o julgamento e a conversa**.
-Use `python3` (ou `python` no Windows). Rode sempre da raiz do workspace.
+O `harness.py` faz a análise estrutural e mantém um grafo local de rastreabilidade. O agente deve revisar semanticamente os critérios sem evidência determinística, e nunca confundir nome de símbolo com comportamento comprovado.
 
-## Regras
-- Existir no código do projeto = feito. Tudo que está em `projeto/` já foi revisado: **não rode testes, não leia CI, não valide qualidade**.
-- **Nunca edite** arquivos de `projeto/` nem de `estado/` à mão. Só use os comandos abaixo.
-- **Nunca invente ids de nó.** Só use ids vindos de `pendentes` ou de `estado/codigo.json`.
-- Não gere código a menos que o usuário peça explicitamente; seu papel aqui é só informar.
-- Ao dar status, **rode `status` antes** (reflete o código de agora); não responda de memória.
+## Princípios
+- Uma rota, classe ou função encontrada é evidência estrutural, não prova automática de que todos os critérios funcionais foram atendidos.
+- Critérios sem artefato determinístico exigem leitura dos candidatos e julgamento explícito.
+- Não invente IDs de nós: use os resultados de `pendentes` ou `estado/codigo.json`.
+- Ao revisar um critério, leia o trecho e considere código relacionado; não conclua só pelo nome da função.
+- Não altere manualmente `estado/`. Mudanças de vínculos devem usar os comandos do harness.
+- Sempre rode `status` depois de mudanças relevantes, para recalcular as evidências e o impacto.
 
 ## Comandos
-- `python3 harness.py status` — sincroniza e mostra barra, blocos e critérios (`--resumo` para curto, `--json` para dados).
-- `python3 harness.py pendentes` — critérios que precisam do seu julgamento, com nós candidatos.
-- `python3 harness.py trecho "<id do nó>"` — mostra o código do nó.
-- `python3 harness.py link TASK-001/C1 "<nó>" ["<nó>" ...]` — registra que o critério é atendido por esses nós.
-- `python3 harness.py nao-feito TASK-001/C1` — registra que os candidatos atuais NÃO atendem.
-- `python3 harness.py unlink TASK-001/C1` — desfaz um vínculo ou julgamento.
-- `python3 harness.py go TASK-005 --sem-perguntar` — mostra pendências anteriores da task.
-- `python3 harness.py proxima` — tasks que já podem começar.
-- `python3 harness.py validar` — valida o manifesto (`spec/`).
-- Primeira vez: `python3 harness.py init --projeto projeto --spec spec/<arquivo>`.
+- `python harness.py status` — sincroniza e mostra status, critérios e alertas.
+- `python harness.py status --json` — saída completa, incluindo grafo de rastreabilidade e impacto de código.
+- `python harness.py pendentes` — critérios sem conclusão semântica e candidatos relevantes.
+- `python harness.py trecho "<id do nó>"` — mostra o trecho indexado de código.
+- `python harness.py link <ID_TASK>/<ID_CRITERIO> "<nó>" ["<nó>" ...]` — confirma um vínculo após revisão.
+- `python harness.py nao-feito <ID_TASK>/<ID_CRITERIO>` — registra que os candidatos atuais não atendem ao critério.
+- `python harness.py unlink <ID_TASK>/<ID_CRITERIO>` — remove o julgamento anterior.
+- `python harness.py proxima` — mostra tasks desbloqueadas por suas dependências.
+- `python harness.py validar` — valida o manifesto.
+- `python harness.py painel` — abre o painel local.
 
-## Fluxo: julgar pendências
-1. Rode `pendentes`. Para cada critério listado, leia os candidatos com `trecho`.
-2. O código cumpre a **descrição do critério**? Se sim → `link` com os nós que provam. Se não → `nao-feito`.
-3. `motivo: codigo_mudou` significa que o código vinculado mudou: releia e confirme com `link` (atualiza) ou refute com `unlink` + `nao-feito`.
-4. Em caso de dúvida real, pergunte ao usuário em vez de adivinhar.
-5. Rode `status --resumo` e relate o que mudou.
+## Fluxo de revisão
+1. Rode `pendentes`.
+2. Leia os trechos dos nós candidatos e siga as chamadas/importações relevantes.
+3. Compare o comportamento com a descrição do critério e todos os seus critérios de aceitação.
+4. Se as evidências sustentarem o critério, use `link`; se não sustentarem, use `nao-feito`.
+5. Rode `status` e explique as evidências, incertezas e o que mudou.
 
-## Fluxo: usuário escolhe uma task ("quero fazer a TASK-005")
-1. Rode `go TASK-005 --sem-perguntar`. Se houver pendências, **pergunte no chat** e espere a resposta:
-   1. fazer a anterior primeiro (mostre qual e quais critérios faltam);
-   2. atualizar a análise (rode `status` de novo — alguém pode já ter feito) e reavaliar;
-   3. seguir mesmo assim, registrando o risco.
-2. Sem pendências, mostre os critérios da task e o que falta.
-3. Se o usuário disser que outra pessoa fez algo: opção 2 (re-sincronizar), nunca assuma.
+## Interpretação do status
+- `feita`: todos os critérios têm evidências consideradas atendidas.
+- `parcial`: apenas parte dos critérios está atendida.
+- `nao_feita`: nenhum critério está confirmado.
+- `revalidar`: uma evidência anteriormente julgada mudou e precisa de nova revisão.
 
-## Ao relatar status
-Mostre: progresso (tasks e critérios), o que mudou desde antes, próximas tasks liberadas, avisos (`⚠`) e código sem task.
-Os dados para o painel ficam em `estado/status.json` (não altere).
+O grafo ajuda a navegar dependências e a calcular impacto; ele não substitui análise semântica nem testes automatizados.

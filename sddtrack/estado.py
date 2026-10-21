@@ -5,7 +5,7 @@ import os
 import shutil
 import time
 
-STATUS, CODIGO, MANUAIS, NEGATIVOS = "status.json", "codigo.json", "vinculos_manuais.json", "julgamentos_negativos.json"
+STATUS, CODIGO, MANUAIS, NEGATIVOS, TESTES = "status.json", "codigo.json", "vinculos_manuais.json", "julgamentos_negativos.json", "testes.json"
 
 
 def _p(cfg, nome):
@@ -35,6 +35,10 @@ def carregar(cfg):
     return _ler(cfg, STATUS, {})
 
 
+def carregar_codigo(cfg):
+    return _ler(cfg, CODIGO, {})
+
+
 def carregar_manuais(cfg):
     return _ler(cfg, MANUAIS, {})
 
@@ -45,6 +49,14 @@ def salvar_manuais(cfg, manuais):
 
 def carregar_negativos(cfg):
     return _ler(cfg, NEGATIVOS, {})
+
+
+def carregar_testes(cfg):
+    return _ler(cfg, TESTES, {})
+
+
+def salvar_testes(cfg, resultados):
+    _gravar(cfg, TESTES, resultados)
 
 
 def salvar_negativos(cfg, negativos):

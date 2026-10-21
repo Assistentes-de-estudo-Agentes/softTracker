@@ -181,6 +181,11 @@ h1{margin:0;font-size:26px;font-weight:700;letter-spacing:-.02em;line-height:1.1
       <div class="grafo-wrap" id="grafo"></div>
       <div class="legenda" id="legenda"></div>
     </section>
+    <section class="painel" aria-labelledby="h-trace">
+      <header><h2 id="h-trace">Grafo de rastreabilidade</h2><span id="trace-sub">Requisito → caso de uso → task → critério → código</span></header>
+      <div class="grafo-wrap" id="grafoTrace"></div>
+      <div class="legenda" id="legendaTrace"></div>
+    </section>
     <section class="painel" aria-labelledby="h-s">
       <header><h2 id="h-s">Stack do projeto</h2><span id="stack-sub"></span></header>
       <div class="stack" id="stack"></div>
@@ -244,6 +249,9 @@ function renderLado() {
       <dt>Casos de uso completos</dt><dd>${S.casos_de_uso.filter(u => u.status === 'feita').length} de ${S.casos_de_uso.length}</dd>
       <dt>Arquivos no projeto</dt><dd>${r.arquivos}</dd>
       <dt>Funções, classes e rotas</dt><dd>${r.nos_de_codigo}</dd>
+      ${(S.validacao_testes && S.validacao_testes.total) ? `<dt>Testes aprovados</dt><dd>${S.validacao_testes.aprovados} de ${S.validacao_testes.total}</dd><dt>Testes falhos</dt><dd>${S.validacao_testes.falhos}</dd>` : ''}
+      <dt>Arquivos relidos no sync</dt><dd>${(S.indexacao || {}).arquivos_lidos ?? '—'}</dd>
+      <dt>Arquivos reaproveitados</dt><dd>${(S.indexacao || {}).arquivos_reutilizados ?? '—'}</dd>
     </dl>
 
     <h3>Status das tasks</h3>`;
@@ -258,6 +266,10 @@ function renderLado() {
   let atencao = '';
   if (julg.length) atencao += `<div class="aviso v"><b>${julg.length} critério(s) aguardando julgamento.</b> Peça ao agente: <span class="mono">/atualizar</span>${julg.slice(0, 3).map(p => `<br><span class="mono">${esc(p.chave)}</span> ${esc(p.descricao)}`).join('')}</div>`;
   if (reval.length) atencao += `<div class="aviso v"><b>${reval.length} task(s) para revalidar:</b> o código julgado mudou. ${reval.map(([i]) => esc(i)).join(', ')}</div>`;
+  const vt = S.validacao_testes || {};
+  if (vt.falhos) atencao += `<div class="aviso v"><b>${vt.falhos} teste(s) falharam.</b> Consulte a task vinculada para ver o ID do teste e a mensagem da falha.</div>`;
+  if (vt.desatualizados) atencao += `<div class="aviso v"><b>${vt.desatualizados} resultado(s) de teste estão desatualizados.</b> Execute <code>python harness.py testar --impactados</code>.</div>`;
+  if (vt.habilitado && vt.nao_executados) atencao += `<div class="aviso"><b>${vt.nao_executados} teste(s) ainda não foram executados.</b> Execute o comando <code>testar</code> para validar o comportamento.</div>`;
   (S.avisos || []).slice(0, 5).forEach(a => atencao += `<div class="aviso">${esc(a)}</div>`);
   if (S.codigo_sem_task && S.codigo_sem_task.length) atencao += `<div class="aviso"><b>${S.codigo_sem_task.length} arquivo(s) com código sem task:</b><br>${S.codigo_sem_task.slice(0, 5).map(f => `<span class="mono">${esc(f)}</span>`).join('<br>')}${S.codigo_sem_task.length > 5 ? '<br>…' : ''}</div>`;
   h += atencao || `<p class="vazio">Nada pendente.</p>`;
@@ -376,6 +388,98 @@ function renderGrafo() {
     `<span style="margin-left:auto"><button class="btn" id="btnAjustar" aria-pressed="${ajustar}" style="padding:3px 10px">${ajustar ? 'Tamanho real' : 'Ajustar à largura'}</button></span>`;
 }
 
+/* ---------------------------------------------------------------- grafo de rastreabilidade */
+function renderGrafoTrace() {
+  const G = S.grafo_rastreabilidade;
+  const wrap = $('grafoTrace');
+  if (!G || !Array.isArray(G.nos) || !G.nos.length) {
+    wrap.innerHTML = '<p class="vazio" style="padding:14px">O grafo de rastreabilidade ainda não foi gerado. Execute uma sincronização do projeto.</p>';
+    $('trace-sub').textContent = 'Sem relações disponíveis';
+    $('legendaTrace').innerHTML = '';
+    return;
+  }
+  const todos = new Map(G.nos.map(n => [n.id, n]));
+  const arestas = G.arestas || [];
+  const incluidos = new Set();
+  const ligar = (id) => { if (todos.has(id)) incluidos.add(id); };
+  const arestasDeTipo = new Set(['realizado_em','implementado_por','possui_criterio','evidenciado_por','pertence_a','verificado_por']);
+  if (sel && S.tasks[sel]) {
+    const tId = `task:${sel}`;
+    ligar(tId);
+    // Requisito e caso de uso que chegam à task selecionada.
+    arestas.filter(e => e.para === tId && e.tipo === 'implementado_por').forEach(e => {
+      ligar(e.de);
+      arestas.filter(r => r.para === e.de && r.tipo === 'realizado_em').forEach(r => ligar(r.de));
+    });
+    // Critérios, evidências de código e arquivos que comprovam esses critérios.
+    arestas.filter(e => e.de === tId && e.tipo === 'possui_criterio').forEach(e => {
+      ligar(e.para);
+      arestas.filter(a => a.de === e.para && a.tipo === 'evidenciado_por').forEach(a => {
+        ligar(a.para);
+        arestas.filter(f => f.de === a.para && f.tipo === 'pertence_a').forEach(f => ligar(f.para));
+      });
+      arestas.filter(a => a.de === e.para && a.tipo === 'verificado_por').forEach(a => ligar(a.para));
+    });
+    // Candidatos são úteis para análise, mas nunca entram como evidência confirmada.
+  } else {
+    G.nos.filter(n => ['requisito','caso_de_uso','task','criterio','teste'].includes(n.tipo)).forEach(n => ligar(n.id));
+    arestas.filter(e => e.tipo === 'evidenciado_por').forEach(e => {
+      if (incluidos.has(e.de)) {
+        ligar(e.para);
+        arestas.filter(f => f.de === e.para && f.tipo === 'pertence_a').forEach(f => ligar(f.para));
+      }
+    });
+  }
+  const ordem = ['requisito','caso_de_uso','task','criterio','codigo','arquivo','teste'];
+  const camadas = ordem.map(tipo => G.nos.filter(n => incluidos.has(n.id) && n.tipo === tipo).sort((a,b) => a.id.localeCompare(b.id)));
+  const mapaCamada = new Map(ordem.map((tipo, i) => [tipo, i]));
+  const NW2 = 205, NH2 = 58, GX2 = 34, GY2 = 12, PAD2 = 16;
+  const maxPorCamada = Math.max(1, ...camadas.map(c => c.length));
+  const XY = new Map();
+  camadas.forEach((camada, l) => camada.forEach((n, i) => {
+    const y = PAD2 + i * (NH2 + GY2);
+    XY.set(n.id, {x: PAD2 + l * (NW2 + GX2), y, camada: l});
+  }));
+  const w = PAD2 * 2 + ordem.length * NW2 + (ordem.length - 1) * GX2;
+  const h = PAD2 * 2 + maxPorCamada * (NH2 + GY2) - GY2;
+  let svgEdges = '', svgNodes = '';
+  arestas.filter(e => arestasDeTipo.has(e.tipo) && incluidos.has(e.de) && incluidos.has(e.para)).forEach(e => {
+    const a = XY.get(e.de), b = XY.get(e.para);
+    if (!a || !b || b.x <= a.x) return;
+    const x1 = a.x + NW2, y1 = a.y + NH2/2, x2 = b.x, y2 = b.y + NH2/2, k = (x2-x1)*.48;
+    const nodeTo = todos.get(e.de);
+    const cssClass = e.tipo === 'evidenciado_por' && nodeTo && nodeTo.status === 'atendido' ? 'aresta ok' : 'aresta';
+    svgEdges += `<path class="${cssClass}" d="M${x1} ${y1} C${x1+k} ${y1}, ${x2-k} ${y2}, ${x2} ${y2}"><title>${esc(e.tipo.replaceAll('_',' '))}</title></path>`;
+  });
+  camadas.forEach((camada, l) => camada.forEach(n => {
+    const p = XY.get(n.id), tipo = n.tipo;
+    let status = n.status;
+    if (tipo === 'criterio') status = status === 'atendido' ? 'feita' : status === 'revalidar' ? 'revalidar' : 'nao_feita';
+    else if (tipo === 'task') status = status || 'nao_feita';
+    else if (tipo === 'teste') status = status === 'aprovado' ? 'feita' : status === 'desatualizada' ? 'revalidar' : status === 'falhou' ? 'parcial' : 'nao_feita';
+    else status = 'nao_feita';
+    const cls = status === 'feita' ? 'feita' : status === 'parcial' ? 'parcial' : status === 'revalidar' ? 'reval' : 'nao';
+    const color = tipo === 'task' || tipo === 'criterio' || tipo === 'teste' ? css(status) : tipo === 'codigo' ? 'var(--linha2)' : tipo === 'arquivo' ? 'var(--mut2)' : 'var(--mut)';
+    let legenda = tipo === 'criterio' ? (n.status === 'atendido' ? 'evidência estática encontrada' : n.status === 'revalidar' ? 'precisa revalidar' : 'ainda sem confirmação') : tipo === 'teste' ? `resultado do teste: ${n.status || 'não executado'}` : tipo;
+    let titulo = n.titulo || n.id;
+    if (titulo.length > 25) titulo = titulo.slice(0,24)+'…';
+    const interactivo = tipo === 'task' && S.tasks[n.id.slice(5)];
+    svgNodes += `<g class="no ${cls} ${interactivo && sel === n.id.slice(5) ? 'sel' : ''}" ${interactivo ? `data-t="${esc(n.id.slice(5))}" tabindex="0" role="button"` : ''} transform="translate(${p.x} ${p.y})" style="--c:${color};${tipo === 'codigo' || tipo === 'arquivo' ? 'opacity:.92' : ''}">
+      <title>${esc(n.id)} — ${esc(n.titulo)}; ${esc(legenda)}</title>
+      <rect class="cx" width="${NW2}" height="${NH2}" rx="7"/>
+      <text class="id" x="10" y="18">${esc(tipo.toUpperCase())}</text>
+      <text class="t" x="10" y="37">${esc(titulo)}</text>
+      <text class="id" x="${NW2-9}" y="18" text-anchor="end">${tipo === 'criterio' ? (n.status === 'atendido' ? 'OK' : n.status === 'revalidar' ? 'REVISAR' : 'PEND.') : (tipo === 'task' || tipo === 'teste') ? esc(status) : ''}</text>
+    </g>`;
+  }));
+  const wrapSx = wrap.scrollLeft, wrapSy = wrap.scrollTop;
+  wrap.innerHTML = `<svg viewBox="0 0 ${w} ${h}" style="width:100%;max-width:${w}px;height:auto" role="group" aria-label="Grafo de rastreabilidade entre especificação e código">${svgEdges}${svgNodes}</svg>`;
+  wrap.scrollLeft = wrapSx; wrap.scrollTop = wrapSy;
+  const stats = G.estatisticas || {};
+  $('trace-sub').textContent = sel ? `Foco em ${sel} · ${camadas.reduce((n,c)=>n+c.length,0)} nós relacionados` : `${stats.nos || G.nos.length} nós · ${stats.arestas || G.arestas.length} relações · clique em uma task para focar`;
+  $('legendaTrace').innerHTML = `<span>${dot('feita',13)}critério com evidência estrutural</span><span>${dot('nao_feita',13)}critério sem confirmação</span><span><i style="display:inline-block;width:16px;border-top:2px solid var(--linha2)"></i>relação registrada</span><span style="margin-left:auto">Candidatos de análise não contam como evidência confirmada.</span>`;
+}
+
 /* ---------------------------------------------------------------- stack */
 function renderStack() {
   const g = (S.stack || []).filter(x => x.itens.length);
@@ -400,9 +504,11 @@ function renderGaveta() {
     ${pend.length ? `<div class="aviso" style="margin-top:14px"><b>Antes desta task:</b> ${pend.map(esc).join(', ')} ainda não está feita.</div>` : ''}
     <h4>Critérios de aceite</h4>
     ${Object.entries(t.criterios).map(([cid, c]) => `<div class="crit">${dot(c.revalidar ? 'revalidar' : c.atendido ? 'feita' : 'nao_feita', 15)}<div>
-        <span class="mono mut">${esc(cid)}</span> ${esc((t.descricoes || {})[cid] || '')}${c.revalidar ? '<span class="tag">revalidar</span>' : ''}${c.origem === 'manual' ? '<span class="tag" style="background:#26304a;color:var(--mut)">julgado pelo agente</span>' : ''}
-        ${(c.evidencia || []).map(e => `<span class="ev mono">↳ ${esc(e.no)}</span>`).join('')}
+        <span class="mono mut">${esc(cid)}</span> ${esc((t.descricoes || {})[cid] || '')}${c.revalidar ? '<span class="tag">revalidar</span>' : ''}${c.nivel_evidencia && c.nivel_evidencia !== 'nenhuma' ? `<span class="tag">${esc(({estrutural:'evidência estrutural',analise_semantica:'análise semântica',revisao_manual:'revisão manual'})[c.nivel_evidencia] || c.nivel_evidencia)}</span>` : ''}
+        ${(c.evidencia || []).map(e => `<span class="ev mono">↳ ${esc(e.no)} · hash ${esc(e.hash)}</span>`).join('')}
+        ${(c.validacao_testes && c.validacao_testes.testes && c.validacao_testes.testes.length) ? `<span class="tag">Validação: ${esc(c.validacao_testes.estado)}</span>${c.validacao_testes.testes.map(x => `<span class="ev mono">teste ${esc(x.id)} · ${esc(x.estado)}${x.mensagem ? ' — ' + esc(x.mensagem.slice(0,180)) : ''}</span>`).join('')}` : ''}
         ${c.justificativa ? `<span class="j">${esc(c.justificativa)}</span>` : ''}</div></div>`).join('')}
+    ${t.status_validacao && t.status_validacao !== 'nao_exigida' ? `<h4>Validação comportamental</h4><div class="aviso">Estado dos testes vinculados: <b>${esc(t.status_validacao)}</b>. Isso é separado do status de implementação estática.</div>` : ''}
     <h4>Depende de</h4>${t.depende_de.length ? `<ul class="lista">${t.depende_de.filter(d => S.tasks[d]).map(d => `<li>${linkT(d)}</li>`).join('')}</ul>` : '<p class="vazio">Nenhuma dependência.</p>'}
     <h4>Libera</h4>${libera.length ? `<ul class="lista">${libera.map(d => `<li>${linkT(d)}</li>`).join('')}</ul>` : '<p class="vazio">Nenhuma task depende desta.</p>'}
     ${t.status !== 'feita' ? `<div class="dica">Para trabalhar nesta task, peça ao agente: <code>/ir ${esc(sel)}</code></div>` : ''}`;
@@ -429,7 +535,7 @@ function render() {
   if (!S) return;
   $('titulo').textContent = S.projeto || 'Painel do projeto';
   $('subtitulo').textContent = `Especificação × código · análise de ${S.ultimo_sync.replace('T', ' às ')}`;
-  renderLado(); renderHeroi(); renderUC(); renderGrafo(); renderStack(); renderGaveta(); renderTempo();
+  renderLado(); renderHeroi(); renderUC(); renderGrafo(); renderGrafoTrace(); renderStack(); renderGaveta(); renderTempo();
   intro = false;
 }
 function aplicar(d) {
@@ -447,7 +553,7 @@ async function carregar(forcar) {
   } catch (e) { erroRede = true; renderBanner(null); }
   renderTempo();
 }
-function selecionar(id) { sel = (sel === id) ? null : id; if (S) { renderHeroi(); renderUC(); renderGrafo(); renderGaveta(); } }
+function selecionar(id) { sel = (sel === id) ? null : id; if (S) { renderHeroi(); renderUC(); renderGrafo(); renderGrafoTrace(); renderGaveta(); } }
 
 document.addEventListener('click', e => {
   const t = e.target.closest('[data-t]'); if (t) { selecionar(t.dataset.t); return; }
