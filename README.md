@@ -1,24 +1,80 @@
-# SDDTrack — harness SDD com dashboard local
+# Harness de acompanhamento (spec ↔ código)
 
-O SDDTrack relaciona especificações (requisitos, casos de uso, tasks e critérios de aceitação) com evidências encontradas no código-fonte. O dashboard mostra o estado desse acompanhamento localmente no navegador.
+Vincula a especificação ao código do projeto e mostra o que está feito e o que falta.
+Roda 100% local, só com Python 3.9+ (YAML exige `pip install pyyaml`; JSON não exige nada).
+Não roda testes, não lê CI, não gera código: o que está no projeto já foi revisado, então
+**existir no código = feito**. Se o código é apagado, a task volta atrás no próximo sync.
 
-## Primeira execução
+## Layout (este diretório é o workspace do Antigravity)
+    harness.py  sddtrack/      # o harness
+    spec/                      # sua especificação (YAML/JSON)
+    projeto/                   # raiz do código (repositório git)
+    estado/                    # gerado: status.json (fonte do painel), codigo.json
+    .agents/skills/sddtrack/   # skill: ensina o Gemini a operar o harness
+    .agents/workflows/         # /status  /ir TASK-005  /atualizar
+    .agents/rules/             # regras fixas (não editar projeto/ nem estado/)
 
-1. Coloque o código-fonte da aplicação em `projeto/` (não coloque o próprio harness nessa pasta).
-2. Edite `spec/spec.yaml` para descrever o projeto real. O arquivo inicial está vazio intencionalmente para não apresentar dados de demonstração como se fossem dados reais. A sincronização sempre reprocessa o manifesto atual, em vez de confiar num `status.json` antigo.
-3. A stack é inferida a partir de arquivos no diretório `projeto/`, como `pom.xml`, `build.gradle`, `package.json`, `requirements.txt`, `*.csproj`, `go.mod` e arquivos de configuração de banco.
-4. Execute `python harness.py validar` para validar a especificação.
-5. Execute `iniciar_dashboard.bat` no Windows. O programa abrirá o navegador no endereço correto e exibirá o endereço no terminal. Se a porta 8765 já estiver ocupada por uma execução anterior, ele escolherá outra porta livre.
-6. Clique em **Sincronizar** depois de alterar o código ou as especificações.
+## Uso rápido
+Atalho: `python harness.py` (sem comando) configura na primeira vez, se achar `spec/` e `projeto/`
+ao lado do script, valida a especificação e abre o painel. Os comandos abaixo continuam disponíveis.
 
-## Dados de demonstração
+    python3 harness.py init --projeto projeto --spec spec/spec.yaml   # uma vez
+    python3 harness.py validar     # valida o manifesto
+    python3 harness.py status      # sincroniza e mostra barra, blocos e critérios
+    python3 harness.py proxima     # tasks que já podem começar
+    python3 harness.py go TASK-003 # curadoria (no Antigravity o agente conduz a conversa)
+    python3 harness.py pendentes   # critérios que precisam de julgamento do agente
+    python3 harness.py trecho "<nó>" ; link TASK/C1 "<nó>" ; nao-feito TASK/C1 ; unlink TASK/C1
+    python3 harness.py watch       # reanalisa sozinho quando o código muda
+    python3 harness.py painel      # abre o painel no navegador (http://localhost:8765)
 
-A especificação de exemplo `exemplos/spec-quadro-equipe.yaml` está separada e não é carregada pelo dashboard por padrão. Não a inclua em `harness.json` a menos que queira visualizar deliberadamente o exemplo.
+No Antigravity: abra esta pasta como workspace e peça em linguagem natural ("o que falta?",
+"quero fazer a TASK-005") ou use `/status`, `/ir TASK-005`, `/atualizar`.
 
-## Stack automática
+## Painel (dashboard local)
+    python3 harness.py painel [--porta 8765] [--sem-abrir]
+Abre `http://localhost:8765` (só aceita conexões desta máquina). Mostra: barra de progresso do projeto
+(um bloco por task, agrupados por caso de uso), blocos de todos os casos de uso, grafo de dependências
+entre tasks, stack, e na lateral resumo, filtros por status, "podem começar agora", avisos, requisitos e UML.
+Clicar em uma task abre critérios, evidências, dependências e o que ela libera. O painel atualiza sozinho
+(a cada 4 s, só reanalisa se o código, a spec ou os vínculos mudaram); apagar código reflete em segundos.
+`painel/index.html` é um arquivo único sem dependências externas (funciona offline) e lê `/api/status`.
+A stack vem da seção `stack:` do manifesto (veja `spec/spec.yaml`).
 
-A detecção é heurística e usa evidências dos arquivos presentes em `projeto/`. Ela identifica tecnologias prováveis, mas não confirma que serviços estejam instalados, iniciados ou conectados. Se `projeto/` estiver vazio, o dashboard deve exibir “Nenhuma tecnologia identificada”.
+Para ver o painel com dados de exemplo:
+    python3 harness.py --config demo/harness.json init --projeto demo/projeto --spec spec/spec.yaml
+    python3 harness.py --config demo/harness.json painel
 
-## Execução
+## Como funciona
+1. `spec.py` lê e valida o manifesto (IDs, referências, ciclos, critérios).
+2. `indexer.py` mapeia o código em nós (arquivo, função, classe, rota) com hash — sem IA,
+   tolera código incompleto/com erro de sintaxe.
+3. `engine.py` recalcula o status de TODOS os critérios a cada sync, a partir do código atual:
+   - critério com `artefato` → casado por padrão (grátis, determinístico);
+   - critério sem artefato (ou `usar_ia: true` com o padrão sem achar) → vira **pendente**:
+     o agente (Gemini) lê os candidatos e decide com `link`/`nao-feito`. Nenhuma API de IA é
+     necessária. Um `link` guarda o hash do código julgado; se esse código mudar, o critério
+     vira `revalidar` e volta às pendências. Um `nao-feito` só reaparece se os candidatos mudarem;
+   - `link` recusa ids de nó que não existem (o agente não consegue inventar vínculo);
+   - (opcional) `--ia-api` + `ANTHROPIC_API_KEY` julga por API em vez do agente.
+4. Status da task: `feita` (todos os critérios), `parcial`, `nao_feita`, `revalidar`
+   (evidência da IA mudou de hash e não pôde ser reavaliada).
+5. `curador.py` resolve dependências antes de você começar uma task.
 
-Requer Python 3.9+ e PyYAML para leitura dos arquivos YAML. Inicie a partir desta pasta para manter a configuração e os caminhos relativos corretos.
+## Saídas (estado/)
+- `status.json`: tasks, critérios, evidências, grafo de tasks, UML colorida por status,
+  requisitos, progresso, código sem task, avisos. É a fonte do painel.
+- `codigo.json`: grafo do código com hashes. `vinculos_manuais.json`: suas correções.
+
+## Manifesto
+Veja `exemplo/spec/spec.yaml`. Tipos de artefato: `rota`, `funcao`, `classe`, `arquivo`, `simbolo`.
+Padrões usam `*`; nomes ignoram maiúsculas, `_` e `-` (`*hash*senha*` casa `comparar_hash_senha`).
+Rotas aceitam `:id`, `{id}` ou `<id>` como curinga. `ignorar:` no manifesto exclui pastas/arquivos.
+
+## Limites conhecidos
+- Rotas: prefixo de controller (Nest/Spring) não é somado ao caminho.
+- O julgamento pelo agente depende de o Gemini seguir a skill; o harness protege o estado
+  (ids inexistentes são recusados), mas não garante que o julgamento esteja certo.
+- O painel não abre via arquivo (file://): use `harness.py painel`. Não há edição pelo painel (somente leitura).
+- Skill/workflows/rules seguem o formato documentado do Antigravity (`.agents/`), mas não foram
+  testados dentro do Antigravity. `llm.py` (API opcional) não foi testado contra a API real.

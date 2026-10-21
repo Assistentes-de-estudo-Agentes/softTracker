@@ -20,15 +20,39 @@ def _ler(caminho):
     return json.loads(texto), texto
 
 
+def _normalizar_stack(bruto):
+    """Aceita lista de {camada, itens}, dict camada -> itens, ou lista simples. Itens: texto ou {nome, uso}."""
+    if not bruto:
+        return []
+    if isinstance(bruto, dict):
+        bruto = [{"camada": k, "itens": v} for k, v in bruto.items()]
+    if not isinstance(bruto, list):
+        return []
+    grupos = []
+    for g in bruto:
+        if isinstance(g, str):
+            g = {"camada": "Stack", "itens": [g]}
+        itens = []
+        for i in (g.get("itens") or []):
+            if isinstance(i, str):
+                i = {"nome": i}
+            if i.get("nome"):
+                itens.append({"nome": str(i["nome"]), "uso": str(i.get("uso", ""))})
+        grupos.append({"camada": str(g.get("camada", "Stack")), "itens": itens})
+    return grupos
+
+
 def carregar(caminhos):
-    chaves_lista = ("requisitos", "casos_de_uso", "uml", "tasks", "ignorar")
-    spec = {chave: [] for chave in chaves_lista}
+    spec = {"requisitos": [], "casos_de_uso": [], "uml": [], "tasks": [], "ignorar": [], "stack": []}
     h = hashlib.sha256()
     for c in caminhos:
         dados, texto = _ler(c)
         h.update(texto.encode("utf-8"))
-        for chave in chaves_lista:
-            spec[chave].extend(dados.get(chave) or [])
+        for chave in spec:
+            if chave == "stack":
+                spec["stack"].extend(_normalizar_stack(dados.get("stack")))
+            else:
+                spec[chave].extend(dados.get(chave) or [])
         if dados.get("projeto"):
             spec["projeto"] = dados["projeto"]
     spec["hash"] = h.hexdigest()
@@ -104,6 +128,8 @@ def validar(spec):
     except CycleError as e:
         erros.append(f"Ciclo nas dependências: {' -> '.join(map(str, e.args[1]))}")
 
+    if not any(g["itens"] for g in spec["stack"]):
+        avisos.append("Spec sem seção 'stack' (o painel mostrará a stack vazia)")
     usados_uc = {t.get("caso_de_uso") for t in spec["tasks"]}
     usados_req = {r for u in spec["casos_de_uso"] for r in (u.get("requisitos") or [])}
     avisos += [f"{r}: requisito sem caso de uso" for r in sorted(reqs - usados_req)]

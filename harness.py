@@ -70,10 +70,40 @@ def mostrar_status(e, detalhado=True):
         print("⚠", a)
 
 
+def modo_padrao(args, ap):
+    base = os.path.dirname(os.path.abspath(args.config))
+    if not os.path.exists(args.config):
+        pasta_spec, pasta_proj = os.path.join(base, "spec"), os.path.join(base, "projeto")
+        specs = sorted(os.path.join(pasta_spec, f) for f in (os.listdir(pasta_spec) if os.path.isdir(pasta_spec) else [])
+                       if f.lower().endswith((".yaml", ".yml", ".json")))
+        if not (specs and os.path.isdir(pasta_proj)):
+            print("Primeira vez? Coloque a especificação em spec/ (YAML ou JSON) e o código em projeto/,\n"
+                  "ou informe os caminhos:\n\n"
+                  "  python harness.py init --projeto PASTA --spec ARQUIVO [ARQUIVO...]\n\n"
+                  "Depois rode `python harness.py` de novo para abrir o painel.\n")
+            ap.print_help()
+            raise SystemExit(1)
+        cfg = {"projeto": pasta_proj, "specs": specs, "estado": "estado"}
+        with open(args.config, "w", encoding="utf-8") as f:
+            json.dump(cfg, f, indent=2, ensure_ascii=False)
+        print(f"Configuração criada: projeto = {pasta_proj}; spec = {', '.join(os.path.basename(x) for x in specs)}")
+    cfg = carregar_cfg(args.config)
+    erros, _ = spec_mod.validar(spec_mod.carregar(cfg["specs"]))
+    if erros:
+        print("A especificação tem erros (corrija antes de abrir o painel):")
+        for m in erros:
+            print("  ✘", m)
+        raise SystemExit(1)
+    from sddtrack import painel
+    painel.servir(cfg, args.porta, abrir=not args.sem_abrir)
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--config", default="harness.json")
-    sub = ap.add_subparsers(dest="cmd", required=True)
+    ap.add_argument("--porta", type=int, default=8765, help="porta do painel (sem subcomando)")
+    ap.add_argument("--sem-abrir", action="store_true", help="não abre o navegador (sem subcomando)")
+    sub = ap.add_subparsers(dest="cmd", metavar="comando")
     p = sub.add_parser("init", help="registra projeto e arquivos de especificação")
     p.add_argument("--projeto", required=True)
     p.add_argument("--spec", nargs="+", required=True)
@@ -93,6 +123,9 @@ def main():
     p.add_argument("--sem-perguntar", action="store_true")
     sub.add_parser("proxima", help="tasks que já podem ser começadas")
     sub.add_parser("validar", help="valida só o manifesto")
+    p = sub.add_parser("painel", help="abre o painel local no navegador")
+    p.add_argument("--porta", type=int, default=8765)
+    p.add_argument("--sem-abrir", action="store_true")
     p = sub.add_parser("pendentes", help="critérios que precisam de julgamento (para o agente)")
     p.add_argument("--json", action="store_true")
     p = sub.add_parser("trecho", help="imprime o código de um nó")
@@ -106,6 +139,9 @@ def main():
     p.add_argument("alvo")
     args = ap.parse_args()
 
+    if args.cmd is None:  # sem subcomando: configura na primeira vez e abre o painel
+        modo_padrao(args, ap)
+        return
     if args.cmd == "init":
         cfg = {"projeto": os.path.abspath(args.projeto), "specs": [os.path.abspath(s) for s in args.spec],
                "estado": "estado"}
@@ -123,7 +159,10 @@ def main():
             print("⚠", m)
         print("Manifesto válido." if not erros else f"{len(erros)} erro(s).")
         sys.exit(1 if erros else 0)
-    if args.cmd == "sync":
+    if args.cmd == "painel":
+        from sddtrack import painel
+        painel.servir(cfg, args.porta, abrir=not args.sem_abrir)
+    elif args.cmd == "sync":
         sync(cfg, args)
     elif args.cmd == "status":
         e = sync(cfg, args, silencioso=True)  # status sempre reflete o código de agora

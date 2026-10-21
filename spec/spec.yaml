@@ -1,17 +1,103 @@
-# Especificação inicial do seu projeto.
-# Substitua o conteúdo abaixo pelos requisitos, casos de uso e tasks reais.
-# Enquanto estiver vazio, o dashboard mostrará 0 tasks e nenhuma stack detectada.
-projeto: Projeto ainda não configurado
+projeto: Quadro de Equipe
+ignorar: ["*.md", "tests/**", "migrations/**"]
 
-# A stack pode ser detectada automaticamente pelos arquivos em projeto/.
-# Preencha manualmente apenas para declarar tecnologias que não possam ser inferidas.
-# stack:
-#   backend: "Java + Spring Boot"
-#   frontend: "Angular"
-#   banco_de_dados: "PostgreSQL"
+stack:
+  - camada: Frontend
+    itens:
+      - {nome: React 18, uso: Interface do quadro e dos cartões}
+      - {nome: TypeScript, uso: Tipagem do cliente}
+      - {nome: Vite, uso: Build e servidor de desenvolvimento}
+  - camada: Backend
+    itens:
+      - {nome: Node.js 20, uso: Runtime da API}
+      - {nome: Express, uso: Rotas HTTP}
+      - {nome: JWT, uso: Autenticação por token}
+  - camada: Dados
+    itens:
+      - {nome: PostgreSQL 16, uso: Persistência principal}
+      - {nome: Redis, uso: Sessões e cache}
+  - camada: Qualidade e entrega
+    itens:
+      - {nome: GitHub Actions, uso: CI de cada pull request}
+      - {nome: Docker, uso: Ambiente reproduzível}
 
-ignorar: ["*.md", "tests/**"]
-requisitos: []
-casos_de_uso: []
-uml: []
-tasks: []
+requisitos:
+  - {id: REQ-001, titulo: Usuários se autenticam com segurança}
+  - {id: REQ-002, titulo: A equipe organiza o trabalho em quadros e cartões}
+  - {id: REQ-003, titulo: A equipe acompanha o que mudou}
+
+casos_de_uso:
+  - {id: UC-001, titulo: Cadastro e login, requisitos: [REQ-001]}
+  - {id: UC-002, titulo: Gerenciar quadros, requisitos: [REQ-002]}
+  - {id: UC-003, titulo: Gerenciar cartões, requisitos: [REQ-002]}
+  - {id: UC-004, titulo: Acompanhar atividade da equipe, requisitos: [REQ-003]}
+
+uml:
+  - {id: UML-User, tipo: classe, elemento: User, tasks: [TASK-001, TASK-002]}
+  - {id: UML-Board, tipo: classe, elemento: Board, tasks: [TASK-004, TASK-005]}
+  - {id: UML-Card, tipo: classe, elemento: Card, tasks: [TASK-006, TASK-007, TASK-008]}
+  - {id: UML-Event, tipo: classe, elemento: ActivityEvent, tasks: [TASK-009, TASK-010]}
+
+tasks:
+  - id: TASK-001
+    titulo: Modelo de usuário
+    caso_de_uso: UC-001
+    criterios:
+      - {id: C1, descricao: Existe a classe User, artefato: {tipo: classe, padrao: User}}
+  - id: TASK-002
+    titulo: Login com e-mail e senha
+    caso_de_uso: UC-001
+    depende_de: [TASK-001]
+    criterios:
+      - {id: C1, descricao: Existe rota POST /login, artefato: {tipo: rota, padrao: "POST /login"}}
+      - {id: C2, descricao: Senha comparada usando hash, artefato: {tipo: funcao, padrao: "*hash*senha*"}}
+  - id: TASK-003
+    titulo: Cadastro de conta
+    caso_de_uso: UC-001
+    depende_de: [TASK-001]
+    criterios:
+      - {id: C1, descricao: Existe rota POST /register, artefato: {tipo: rota, padrao: "POST /register"}}
+  - id: TASK-004
+    titulo: Modelo de quadro
+    caso_de_uso: UC-002
+    depende_de: [TASK-002]
+    criterios:
+      - {id: C1, descricao: Existe a classe Board, artefato: {tipo: classe, padrao: Board}}
+  - id: TASK-005
+    titulo: Criar e listar quadros
+    caso_de_uso: UC-002
+    depende_de: [TASK-004]
+    criterios:
+      - {id: C1, descricao: Existe rota POST /boards, artefato: {tipo: rota, padrao: "POST /boards"}}
+      - {id: C2, descricao: Existe rota GET /boards, artefato: {tipo: rota, padrao: "GET /boards"}}
+  - id: TASK-006
+    titulo: Modelo de cartão
+    caso_de_uso: UC-003
+    depende_de: [TASK-004]
+    criterios:
+      - {id: C1, descricao: Existe a classe Card, artefato: {tipo: classe, padrao: Card}}
+  - id: TASK-007
+    titulo: Criar cartão no quadro
+    caso_de_uso: UC-003
+    depende_de: [TASK-005, TASK-006]
+    criterios:
+      - {id: C1, descricao: Existe rota POST /cards, artefato: {tipo: rota, padrao: "POST /cards"}}
+      - {id: C2, descricao: Cartão exige título não vazio ao ser criado}
+  - id: TASK-008
+    titulo: Mover cartão entre colunas
+    caso_de_uso: UC-003
+    depende_de: [TASK-007]
+    criterios:
+      - {id: C1, descricao: Existe rota PATCH /cards/:id/move, artefato: {tipo: rota, padrao: "PATCH /cards/*/move"}}
+  - id: TASK-009
+    titulo: Registro de eventos de atividade
+    caso_de_uso: UC-004
+    depende_de: [TASK-007]
+    criterios:
+      - {id: C1, descricao: Existe a classe ActivityEvent, artefato: {tipo: classe, padrao: ActivityEvent}}
+  - id: TASK-010
+    titulo: Feed de atividade da equipe
+    caso_de_uso: UC-004
+    depende_de: [TASK-009, TASK-008]
+    criterios:
+      - {id: C1, descricao: Existe rota GET /activity, artefato: {tipo: rota, padrao: "GET /activity"}}

@@ -1,35 +1,593 @@
 {
-  "projeto": "Projeto ainda não configurado",
-  "ultimo_sync": "2026-10-20T18:39:10",
-  "spec_hash": "29389ff902d016289cff6382820b10b827733bbb467d7592c53db777d0776bd0",
-  "codigo_fp": "1fa117f8d41d6032",
+  "projeto": "Quadro de Equipe",
+  "ultimo_sync": "2026-10-21T02:54:05",
+  "spec_hash": "4d9259ba458de422e89d4659b4ad359bbdfe9efcd117f93e55f06ea5187bcfcb",
+  "codigo_fp": "018f20c147ee7cb1",
   "resumo": {
-    "tasks_total": 0,
+    "tasks_total": 10,
     "tasks_feitas": 0,
     "por_status": {
       "feita": 0,
       "parcial": 0,
-      "nao_feita": 0,
+      "nao_feita": 10,
       "revalidar": 0
     },
-    "progresso_tasks": 0,
-    "criterios_total": 0,
+    "progresso_tasks": 0.0,
+    "criterios_total": 13,
     "criterios_atendidos": 0,
-    "progresso_criterios": 0,
-    "arquivos": 1,
-    "nos_de_codigo": 0
+    "progresso_criterios": 0.0,
+    "arquivos": 7,
+    "nos_de_codigo": 20
   },
-  "tasks": {},
+  "tasks": {
+    "TASK-001": {
+      "titulo": "Modelo de usuário",
+      "depende_de": [],
+      "caso_de_uso": "UC-001",
+      "status": "nao_feita",
+      "criterios": {
+        "C1": {
+          "def_hash": "0fd7d88b245a",
+          "atendido": false,
+          "origem": "padrao",
+          "evidencia": []
+        }
+      },
+      "descricoes": {
+        "C1": "Existe a classe User"
+      }
+    },
+    "TASK-002": {
+      "titulo": "Login com e-mail e senha",
+      "depende_de": [
+        "TASK-001"
+      ],
+      "caso_de_uso": "UC-001",
+      "status": "nao_feita",
+      "criterios": {
+        "C1": {
+          "def_hash": "fe89dc49cef9",
+          "atendido": false,
+          "origem": "padrao",
+          "evidencia": []
+        },
+        "C2": {
+          "def_hash": "d40cb0560889",
+          "atendido": false,
+          "origem": "padrao",
+          "evidencia": []
+        }
+      },
+      "descricoes": {
+        "C1": "Existe rota POST /login",
+        "C2": "Senha comparada usando hash"
+      }
+    },
+    "TASK-003": {
+      "titulo": "Cadastro de conta",
+      "depende_de": [
+        "TASK-001"
+      ],
+      "caso_de_uso": "UC-001",
+      "status": "nao_feita",
+      "criterios": {
+        "C1": {
+          "def_hash": "9edacbe908cc",
+          "atendido": false,
+          "origem": "padrao",
+          "evidencia": []
+        }
+      },
+      "descricoes": {
+        "C1": "Existe rota POST /register"
+      }
+    },
+    "TASK-004": {
+      "titulo": "Modelo de quadro",
+      "depende_de": [
+        "TASK-002"
+      ],
+      "caso_de_uso": "UC-002",
+      "status": "nao_feita",
+      "criterios": {
+        "C1": {
+          "def_hash": "8309e4202d44",
+          "atendido": false,
+          "origem": "padrao",
+          "evidencia": []
+        }
+      },
+      "descricoes": {
+        "C1": "Existe a classe Board"
+      }
+    },
+    "TASK-005": {
+      "titulo": "Criar e listar quadros",
+      "depende_de": [
+        "TASK-004"
+      ],
+      "caso_de_uso": "UC-002",
+      "status": "nao_feita",
+      "criterios": {
+        "C1": {
+          "def_hash": "0c579d835e35",
+          "atendido": false,
+          "origem": "padrao",
+          "evidencia": []
+        },
+        "C2": {
+          "def_hash": "bd671a7e79ef",
+          "atendido": false,
+          "origem": "padrao",
+          "evidencia": []
+        }
+      },
+      "descricoes": {
+        "C1": "Existe rota POST /boards",
+        "C2": "Existe rota GET /boards"
+      }
+    },
+    "TASK-006": {
+      "titulo": "Modelo de cartão",
+      "depende_de": [
+        "TASK-004"
+      ],
+      "caso_de_uso": "UC-003",
+      "status": "nao_feita",
+      "criterios": {
+        "C1": {
+          "def_hash": "f561b37320aa",
+          "atendido": false,
+          "origem": "padrao",
+          "evidencia": []
+        }
+      },
+      "descricoes": {
+        "C1": "Existe a classe Card"
+      }
+    },
+    "TASK-007": {
+      "titulo": "Criar cartão no quadro",
+      "depende_de": [
+        "TASK-005",
+        "TASK-006"
+      ],
+      "caso_de_uso": "UC-003",
+      "status": "nao_feita",
+      "criterios": {
+        "C1": {
+          "def_hash": "7edf301588aa",
+          "atendido": false,
+          "origem": "padrao",
+          "evidencia": []
+        },
+        "C2": {
+          "def_hash": "8dc0470e25ea",
+          "atendido": false,
+          "origem": "ia",
+          "evidencia": []
+        }
+      },
+      "descricoes": {
+        "C1": "Existe rota POST /cards",
+        "C2": "Cartão exige título não vazio ao ser criado"
+      }
+    },
+    "TASK-008": {
+      "titulo": "Mover cartão entre colunas",
+      "depende_de": [
+        "TASK-007"
+      ],
+      "caso_de_uso": "UC-003",
+      "status": "nao_feita",
+      "criterios": {
+        "C1": {
+          "def_hash": "4886669e5f55",
+          "atendido": false,
+          "origem": "padrao",
+          "evidencia": []
+        }
+      },
+      "descricoes": {
+        "C1": "Existe rota PATCH /cards/:id/move"
+      }
+    },
+    "TASK-009": {
+      "titulo": "Registro de eventos de atividade",
+      "depende_de": [
+        "TASK-007"
+      ],
+      "caso_de_uso": "UC-004",
+      "status": "nao_feita",
+      "criterios": {
+        "C1": {
+          "def_hash": "e809eeef055d",
+          "atendido": false,
+          "origem": "padrao",
+          "evidencia": []
+        }
+      },
+      "descricoes": {
+        "C1": "Existe a classe ActivityEvent"
+      }
+    },
+    "TASK-010": {
+      "titulo": "Feed de atividade da equipe",
+      "depende_de": [
+        "TASK-009",
+        "TASK-008"
+      ],
+      "caso_de_uso": "UC-004",
+      "status": "nao_feita",
+      "criterios": {
+        "C1": {
+          "def_hash": "bfdebf39c063",
+          "atendido": false,
+          "origem": "padrao",
+          "evidencia": []
+        }
+      },
+      "descricoes": {
+        "C1": "Existe rota GET /activity"
+      }
+    }
+  },
   "grafo_tasks": {
-    "nos": [],
-    "arestas": []
+    "nos": [
+      {
+        "id": "TASK-001",
+        "titulo": "Modelo de usuário",
+        "status": "nao_feita"
+      },
+      {
+        "id": "TASK-002",
+        "titulo": "Login com e-mail e senha",
+        "status": "nao_feita"
+      },
+      {
+        "id": "TASK-003",
+        "titulo": "Cadastro de conta",
+        "status": "nao_feita"
+      },
+      {
+        "id": "TASK-004",
+        "titulo": "Modelo de quadro",
+        "status": "nao_feita"
+      },
+      {
+        "id": "TASK-005",
+        "titulo": "Criar e listar quadros",
+        "status": "nao_feita"
+      },
+      {
+        "id": "TASK-006",
+        "titulo": "Modelo de cartão",
+        "status": "nao_feita"
+      },
+      {
+        "id": "TASK-007",
+        "titulo": "Criar cartão no quadro",
+        "status": "nao_feita"
+      },
+      {
+        "id": "TASK-008",
+        "titulo": "Mover cartão entre colunas",
+        "status": "nao_feita"
+      },
+      {
+        "id": "TASK-009",
+        "titulo": "Registro de eventos de atividade",
+        "status": "nao_feita"
+      },
+      {
+        "id": "TASK-010",
+        "titulo": "Feed de atividade da equipe",
+        "status": "nao_feita"
+      }
+    ],
+    "arestas": [
+      [
+        "TASK-001",
+        "TASK-002"
+      ],
+      [
+        "TASK-001",
+        "TASK-003"
+      ],
+      [
+        "TASK-002",
+        "TASK-004"
+      ],
+      [
+        "TASK-004",
+        "TASK-005"
+      ],
+      [
+        "TASK-004",
+        "TASK-006"
+      ],
+      [
+        "TASK-005",
+        "TASK-007"
+      ],
+      [
+        "TASK-006",
+        "TASK-007"
+      ],
+      [
+        "TASK-007",
+        "TASK-008"
+      ],
+      [
+        "TASK-007",
+        "TASK-009"
+      ],
+      [
+        "TASK-009",
+        "TASK-010"
+      ],
+      [
+        "TASK-008",
+        "TASK-010"
+      ]
+    ]
   },
-  "requisitos": [],
-  "uml": [],
-  "codigo_sem_task": [],
-  "pendentes_ia": [],
+  "requisitos": [
+    {
+      "id": "REQ-001",
+      "titulo": "Usuários se autenticam com segurança",
+      "casos_de_uso": [
+        "UC-001"
+      ],
+      "tasks": [
+        "TASK-001",
+        "TASK-002",
+        "TASK-003"
+      ],
+      "status": "nao_feita"
+    },
+    {
+      "id": "REQ-002",
+      "titulo": "A equipe organiza o trabalho em quadros e cartões",
+      "casos_de_uso": [
+        "UC-002",
+        "UC-003"
+      ],
+      "tasks": [
+        "TASK-004",
+        "TASK-005",
+        "TASK-006",
+        "TASK-007",
+        "TASK-008"
+      ],
+      "status": "nao_feita"
+    },
+    {
+      "id": "REQ-003",
+      "titulo": "A equipe acompanha o que mudou",
+      "casos_de_uso": [
+        "UC-004"
+      ],
+      "tasks": [
+        "TASK-009",
+        "TASK-010"
+      ],
+      "status": "nao_feita"
+    }
+  ],
+  "casos_de_uso": [
+    {
+      "id": "UC-001",
+      "titulo": "Cadastro e login",
+      "descricao": "",
+      "requisitos": [
+        "REQ-001"
+      ],
+      "tasks": [
+        "TASK-001",
+        "TASK-002",
+        "TASK-003"
+      ],
+      "feitas": 0,
+      "total": 3,
+      "status": "nao_feita"
+    },
+    {
+      "id": "UC-002",
+      "titulo": "Gerenciar quadros",
+      "descricao": "",
+      "requisitos": [
+        "REQ-002"
+      ],
+      "tasks": [
+        "TASK-004",
+        "TASK-005"
+      ],
+      "feitas": 0,
+      "total": 2,
+      "status": "nao_feita"
+    },
+    {
+      "id": "UC-003",
+      "titulo": "Gerenciar cartões",
+      "descricao": "",
+      "requisitos": [
+        "REQ-002"
+      ],
+      "tasks": [
+        "TASK-006",
+        "TASK-007",
+        "TASK-008"
+      ],
+      "feitas": 0,
+      "total": 3,
+      "status": "nao_feita"
+    },
+    {
+      "id": "UC-004",
+      "titulo": "Acompanhar atividade da equipe",
+      "descricao": "",
+      "requisitos": [
+        "REQ-003"
+      ],
+      "tasks": [
+        "TASK-009",
+        "TASK-010"
+      ],
+      "feitas": 0,
+      "total": 2,
+      "status": "nao_feita"
+    }
+  ],
+  "tasks_sem_caso_de_uso": [],
+  "stack": [
+    {
+      "camada": "Frontend",
+      "itens": [
+        {
+          "nome": "React 18",
+          "uso": "Interface do quadro e dos cartões"
+        },
+        {
+          "nome": "TypeScript",
+          "uso": "Tipagem do cliente"
+        },
+        {
+          "nome": "Vite",
+          "uso": "Build e servidor de desenvolvimento"
+        }
+      ]
+    },
+    {
+      "camada": "Backend",
+      "itens": [
+        {
+          "nome": "Node.js 20",
+          "uso": "Runtime da API"
+        },
+        {
+          "nome": "Express",
+          "uso": "Rotas HTTP"
+        },
+        {
+          "nome": "JWT",
+          "uso": "Autenticação por token"
+        }
+      ]
+    },
+    {
+      "camada": "Dados",
+      "itens": [
+        {
+          "nome": "PostgreSQL 16",
+          "uso": "Persistência principal"
+        },
+        {
+          "nome": "Redis",
+          "uso": "Sessões e cache"
+        }
+      ]
+    },
+    {
+      "camada": "Qualidade e entrega",
+      "itens": [
+        {
+          "nome": "GitHub Actions",
+          "uso": "CI de cada pull request"
+        },
+        {
+          "nome": "Docker",
+          "uso": "Ambiente reproduzível"
+        }
+      ]
+    }
+  ],
+  "uml": [
+    {
+      "id": "UML-User",
+      "tipo": "classe",
+      "elemento": "User",
+      "tasks": [
+        "TASK-001",
+        "TASK-002"
+      ],
+      "status": "nao_feita"
+    },
+    {
+      "id": "UML-Board",
+      "tipo": "classe",
+      "elemento": "Board",
+      "tasks": [
+        "TASK-004",
+        "TASK-005"
+      ],
+      "status": "nao_feita"
+    },
+    {
+      "id": "UML-Card",
+      "tipo": "classe",
+      "elemento": "Card",
+      "tasks": [
+        "TASK-006",
+        "TASK-007",
+        "TASK-008"
+      ],
+      "status": "nao_feita"
+    },
+    {
+      "id": "UML-Event",
+      "tipo": "classe",
+      "elemento": "ActivityEvent",
+      "tasks": [
+        "TASK-009",
+        "TASK-010"
+      ],
+      "status": "nao_feita"
+    }
+  ],
+  "codigo_sem_task": [
+    "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/TarefaApplication.java",
+    "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/controller/TarefaController.java",
+    "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/model/Tarefa.java",
+    "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/service/TarefaService.java"
+  ],
+  "pendentes_ia": [
+    {
+      "chave": "TASK-007/C2",
+      "task": "TASK-007",
+      "titulo_task": "Criar cartão no quadro",
+      "criterio": "C2",
+      "descricao": "Cartão exige título não vazio ao ser criado",
+      "motivo": "sem_artefato",
+      "candidatos": [
+        "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/TarefaApplication.java::classe:TarefaApplication",
+        "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/TarefaApplication.java::funcao:main",
+        "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/controller/TarefaController.java::classe:TarefaController",
+        "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/controller/TarefaController.java::funcao:TarefaController",
+        "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/controller/TarefaController.java::funcao:criar",
+        "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/controller/TarefaController.java::funcao:listarTodas",
+        "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/model/Tarefa.java::classe:Tarefa",
+        "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/model/Tarefa.java::funcao:Tarefa",
+        "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/model/Tarefa.java::funcao:Tarefa#2",
+        "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/model/Tarefa.java::funcao:getDescricao",
+        "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/model/Tarefa.java::funcao:getId",
+        "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/model/Tarefa.java::funcao:getTitulo",
+        "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/model/Tarefa.java::funcao:isConcluida",
+        "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/model/Tarefa.java::funcao:setConcluida",
+        "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/model/Tarefa.java::funcao:setDescricao",
+        "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/model/Tarefa.java::funcao:setId",
+        "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/model/Tarefa.java::funcao:setTitulo",
+        "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/service/TarefaService.java::classe:TarefaService",
+        "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/service/TarefaService.java::funcao:criar",
+        "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/service/TarefaService.java::funcao:listarTodas"
+      ]
+    }
+  ],
   "avisos": [],
-  "avisos_spec": [],
+  "avisos_spec": [
+    "TASK-007/C2: sem artefato esperado (só a IA consegue vincular)",
+    "TASK-003: task fora de qualquer elemento da UML"
+  ],
   "ia_usada": 0,
   "mudancas": []
 }

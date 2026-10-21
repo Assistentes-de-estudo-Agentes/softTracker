@@ -219,6 +219,9 @@ def sincronizar(cfg, usar_ia=True, max_ia=20, simular=False):
         "grafo_tasks": {"nos": [{"id": i, "titulo": t["titulo"], "status": t["status"]} for i, t in tasks.items()],
                         "arestas": [[d, i] for i, t in tasks.items() for d in t["depende_de"]]},
         "requisitos": _por_requisito(spec, tasks),
+        "casos_de_uso": _por_caso_de_uso(spec, tasks),
+        "tasks_sem_caso_de_uso": [i for i, t in tasks.items() if not t["caso_de_uso"]],
+        "stack": spec["stack"],
         "uml": [{"id": e["id"], "tipo": e.get("tipo"), "elemento": e.get("elemento"), "tasks": e.get("tasks") or [],
                  "status": _status_agregado([tasks[x]["status"] for x in (e.get("tasks") or [])])}
                 for e in spec["uml"]],
@@ -232,6 +235,17 @@ def sincronizar(cfg, usar_ia=True, max_ia=20, simular=False):
     if not simular:
         est.salvar(cfg, novo, grafo)
     return novo
+
+
+def _por_caso_de_uso(spec, tasks):
+    saida = []
+    for u in spec["casos_de_uso"]:
+        ts = [i for i, t in tasks.items() if t["caso_de_uso"] == u["id"]]
+        feitas = sum(1 for x in ts if tasks[x]["status"] == "feita")
+        saida.append({"id": u["id"], "titulo": u.get("titulo", ""), "descricao": u.get("descricao", ""),
+                      "requisitos": u.get("requisitos") or [], "tasks": ts, "feitas": feitas, "total": len(ts),
+                      "status": _status_agregado([tasks[x]["status"] for x in ts])})
+    return saida
 
 
 def _por_requisito(spec, tasks):

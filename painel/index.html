@@ -1,0 +1,471 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>sddtrack — painel</title>
+<style>
+:root{
+  --bg:#0E1320; --panel:#151C2E; --panel2:#1B243A; --linha:#26304A; --linha2:#3A4668;
+  --tx:#E8ECF6; --mut:#8B95B0; --mut2:#5F6A86;
+  --feita:#3EDDB4; --parcial:#F3B94D; --nao:#66728F; --reval:#AC8CFF;
+  --fonte:"Segoe UI Variable Display","SF Pro Display","Inter","Helvetica Neue",system-ui,-apple-system,sans-serif;
+  --mono:"Cascadia Mono","JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--tx);font-family:var(--fonte);font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--reval);outline-offset:2px}
+.mono{font-family:var(--mono);font-size:.86em}
+.mut{color:var(--mut)}
+.app{display:grid;grid-template-columns:304px 1fr;min-height:100vh}
+
+/* ---------- barra lateral ---------- */
+aside{position:sticky;top:0;height:100vh;overflow:auto;background:var(--panel);border-right:1px solid var(--linha);padding:22px 20px 32px;scrollbar-width:thin;scrollbar-color:var(--linha2) transparent}
+.marca{display:flex;align-items:center;gap:10px;font-weight:700;font-size:16px;letter-spacing:-.01em}
+.marca i{width:22px;height:22px;border-radius:6px;background:conic-gradient(var(--feita) 0 40%,var(--parcial) 0 65%,var(--reval) 0 80%,var(--nao) 0);display:block}
+.proj{margin:14px 0 2px;font-size:18px;font-weight:650;line-height:1.25;letter-spacing:-.015em}
+.sync{display:flex;align-items:center;gap:7px;color:var(--mut);font-size:12.5px}
+.vivo{width:7px;height:7px;border-radius:50%;background:var(--nao)}
+.vivo.on{background:var(--feita);box-shadow:0 0 0 3px #3eddb41f}
+.vivo.off{background:var(--parcial)}
+aside h3{margin:26px 0 9px;font-size:13px;font-weight:650;color:var(--mut);letter-spacing:.01em}
+.kv{display:grid;grid-template-columns:1fr auto;gap:7px 10px;margin:0}
+.kv dt{color:var(--mut)} .kv dd{margin:0;font-variant-numeric:tabular-nums;font-weight:600;text-align:right}
+.filtro{display:grid;grid-template-columns:16px 1fr auto;align-items:center;gap:9px;width:100%;padding:7px 9px;margin:0 -9px;border:0;background:none;border-radius:6px;text-align:left}
+.filtro:hover{background:var(--panel2)}
+.filtro[aria-pressed=true]{background:var(--panel2);box-shadow:inset 2px 0 0 var(--tx)}
+.filtro b{font-variant-numeric:tabular-nums}
+.lista{list-style:none;margin:0;padding:0;display:grid;gap:2px}
+.item{display:grid;grid-template-columns:14px 1fr;gap:9px;align-items:start;width:100%;padding:6px 8px;margin:0 -8px;border:0;background:none;border-radius:6px;text-align:left}
+button.item:hover{background:var(--panel2)}
+.item small{display:block;color:var(--mut);font-size:12px}
+.aviso{padding:8px 10px;margin-bottom:6px;border-radius:6px;background:#f3b94d14;border-left:3px solid var(--parcial);font-size:12.5px;color:#e9d3a2}
+.aviso.v{background:#ac8cff14;border-color:var(--reval);color:#d6c8ff}
+.vazio{color:var(--mut);font-size:12.5px;margin:0}
+.barra-fina{height:3px;border-radius:2px;background:var(--linha);overflow:hidden;margin-top:5px}
+.barra-fina i{display:block;height:100%;background:var(--feita)}
+
+/* ---------- conteúdo ---------- */
+main{padding:26px 34px 60px;min-width:0}
+.topo{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+h1{margin:0;font-size:26px;font-weight:700;letter-spacing:-.02em;line-height:1.15}
+.sub{margin:4px 0 0;color:var(--mut)}
+.acoes{display:flex;gap:8px}
+.btn{padding:7px 13px;border:1px solid var(--linha2);background:var(--panel);border-radius:8px}
+.btn:hover{background:var(--panel2)}
+.btn[aria-pressed=true]{border-color:var(--feita);color:var(--feita)}
+.banner{margin:0 0 16px;padding:11px 14px;border-radius:8px;border:1px solid #f0657a66;background:#f0657a14;color:#ffc3cb}
+.banner ul{margin:6px 0 0;padding-left:18px}
+.banner code{font-family:var(--mono);background:#0003;padding:1px 5px;border-radius:3px}
+
+.painel{background:var(--panel);border:1px solid var(--linha);border-radius:12px;padding:20px 22px;margin-bottom:18px}
+.painel>header{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:14px}
+.painel h2{margin:0;font-size:16px;font-weight:650;letter-spacing:-.01em}
+.painel header span{color:var(--mut);font-size:12.5px}
+
+/* herói: progresso do projeto */
+.heroi{display:grid;grid-template-columns:auto 1fr;gap:34px;align-items:center;padding:26px 28px}
+.pct{font-size:76px;font-weight:700;letter-spacing:-.05em;line-height:.9;font-variant-numeric:tabular-nums}
+.pct small{font-size:30px;letter-spacing:-.02em;color:var(--mut);margin-left:3px}
+.heroi p{margin:10px 0 0;color:var(--mut);max-width:220px}
+.grupos{display:flex;flex-wrap:wrap;gap:16px 14px}
+.grupo{min-width:0}
+.grupo .seg{display:flex;gap:3px}
+.grupo label{display:block;margin-top:6px;font-size:11.5px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.s{position:relative;flex:1 1 0;min-width:18px;height:38px;padding:0;border:1px solid var(--linha2);background:var(--panel2);border-radius:3px;overflow:hidden}
+.s i{position:absolute;inset:0 auto 0 0;display:block;width:var(--w);background:var(--c)}
+.s.reval i{background:repeating-linear-gradient(135deg,var(--reval) 0 5px,#7f63d6 5px 10px)}
+.s.nao{border-color:var(--linha2)}
+.s:hover{border-color:var(--tx)}
+.s.sel{outline:2px solid var(--tx);outline-offset:1px}
+.fino{margin-top:20px;display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;color:var(--mut);font-size:12.5px}
+.fino .trilho{height:6px;border-radius:3px;background:var(--panel2);overflow:hidden}
+.fino .trilho i{display:block;height:100%;background:var(--feita);border-radius:3px}
+.intro .s i{animation:enche .7s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(var(--n)*55ms)}
+@keyframes enche{from{width:0}}
+
+/* casos de uso */
+.ucs{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:14px}
+.uc{background:var(--panel2);border:1px solid var(--linha);border-left:3px solid var(--c);border-radius:8px;padding:14px 16px 10px}
+.uc h3{margin:0;font-size:15px;font-weight:650;letter-spacing:-.01em}
+.uc .cab{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.uc .n{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1}
+.uc .n small{font-size:12px;font-weight:500;color:var(--mut)}
+.reqs{display:flex;gap:5px;flex-wrap:wrap;margin:7px 0 10px}
+.reqs span{padding:1px 6px;border-radius:3px;background:var(--panel);border:1px solid var(--linha);color:var(--mut)}
+.pilha{display:flex;height:5px;border-radius:3px;overflow:hidden;background:var(--panel);margin-bottom:8px}
+.pilha i{display:block;height:100%}
+.tl{display:grid;grid-template-columns:14px auto 1fr auto;gap:9px;align-items:center;width:100%;padding:6px 6px;margin:0 -6px;border:0;background:none;border-radius:5px;text-align:left}
+.tl:hover{background:var(--panel)}
+.tl.sel{background:var(--panel);box-shadow:inset 2px 0 0 var(--tx)}
+.tl span:nth-child(3){overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tl em{font-style:normal;color:var(--mut);font-variant-numeric:tabular-nums;font-size:12px}
+.dim{opacity:.28}
+
+/* grafo */
+.grafo-wrap{overflow:auto;max-height:600px;border-radius:8px;background:
+  radial-gradient(circle at 1px 1px,#26304a 1px,transparent 0) 0 0/22px 22px,var(--bg);border:1px solid var(--linha);padding:10px}
+.grafo-wrap svg{display:block}
+.no{cursor:pointer;outline:none}
+.no rect.cx{fill:var(--panel2);stroke:var(--c);stroke-width:1.5}
+.no.reval rect.cx{stroke-dasharray:5 3}
+.no.nao rect.cx{fill:var(--panel)}
+.no:hover rect.cx,.no:focus-visible rect.cx{stroke-width:2.5}
+.no.sel rect.cx{stroke:var(--tx);stroke-width:2.5}
+.no text{pointer-events:none}
+.no .id{font-family:var(--mono);font-size:11px;fill:var(--mut)}
+.no .t{font-size:12.5px;fill:var(--tx)}
+.no.nao .t{fill:var(--mut)}
+.aresta{fill:none;stroke:var(--linha2);stroke-width:1.4}
+.aresta.ok{stroke:#3eddb480}
+.aresta.hl{stroke:var(--tx);stroke-width:2}
+.legenda{display:flex;gap:16px;flex-wrap:wrap;color:var(--mut);font-size:12.5px;margin-top:10px}
+.legenda span{display:inline-flex;gap:6px;align-items:center}
+
+/* stack */
+.stack{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:22px 30px}
+.stack h3{margin:0 0 8px;font-size:13px;font-weight:650;color:var(--mut)}
+.stack ul{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.stack li{padding-left:11px;border-left:2px solid var(--linha2)}
+.stack li b{display:block;font-weight:600}
+.stack li small{color:var(--mut);font-size:12.5px}
+
+/* detalhe da task */
+.gaveta{position:fixed;top:0;right:0;bottom:0;width:min(410px,100vw);background:var(--panel);border-left:1px solid var(--linha2);box-shadow:-24px 0 48px #0006;padding:22px 22px 30px;overflow:auto;transform:translateX(105%);transition:transform .22s ease;z-index:5}
+.gaveta.on{transform:none}
+.gaveta .fechar{position:absolute;top:14px;right:14px;width:30px;height:30px;border-radius:6px;border:1px solid var(--linha2);background:var(--panel2)}
+.gaveta h2{margin:6px 30px 8px 0;font-size:20px;line-height:1.25;letter-spacing:-.015em}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:2px 9px 2px 7px;border-radius:99px;border:1px solid var(--c);color:var(--c);font-size:12.5px;font-weight:600}
+.gaveta h4{margin:22px 0 8px;font-size:13px;color:var(--mut);font-weight:650}
+.crit{display:grid;grid-template-columns:18px 1fr;gap:9px;padding:9px 0;border-top:1px solid var(--linha)}
+.crit:first-of-type{border-top:0}
+.crit .ev{display:block;margin-top:3px;color:var(--mut);word-break:break-all}
+.crit .j{display:block;margin-top:3px;color:var(--mut);font-size:12.5px;font-style:italic}
+.tag{display:inline-block;margin-left:6px;padding:0 6px;border-radius:3px;font-size:11px;background:#ac8cff26;color:var(--reval)}
+.dica{margin-top:16px;padding:10px 12px;border-radius:8px;background:var(--panel2);color:var(--mut);font-size:12.5px}
+.dica code{font-family:var(--mono);color:var(--tx)}
+
+@media (max-width:1000px){
+  .app{grid-template-columns:1fr}
+  aside{position:static;height:auto;border-right:0;border-top:1px solid var(--linha);order:2}
+  main{padding:20px 16px 48px}
+  .heroi{grid-template-columns:1fr;gap:18px}
+  .pct{font-size:60px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside id="lado" aria-label="Informações do projeto"></aside>
+  <main>
+    <div class="topo">
+      <div>
+        <h1 id="titulo">Painel do projeto</h1>
+        <p class="sub" id="subtitulo">Carregando…</p>
+      </div>
+      <div class="acoes">
+        <button class="btn" id="btnVivo" aria-pressed="true">Ao vivo</button>
+        <button class="btn" id="btnAtualizar">Atualizar agora</button>
+      </div>
+    </div>
+    <div id="banner"></div>
+    <section class="painel heroi" id="heroi" aria-label="Progresso do projeto"></section>
+    <section class="painel" aria-labelledby="h-uc">
+      <header><h2 id="h-uc">Casos de uso</h2><span id="uc-sub"></span></header>
+      <div class="ucs" id="ucs"></div>
+    </section>
+    <section class="painel" aria-labelledby="h-g">
+      <header><h2 id="h-g">Dependências entre tasks</h2><span>Clique em uma task para ver critérios e o que ela bloqueia</span></header>
+      <div class="grafo-wrap" id="grafo"></div>
+      <div class="legenda" id="legenda"></div>
+    </section>
+    <section class="painel" aria-labelledby="h-s">
+      <header><h2 id="h-s">Stack do projeto</h2><span id="stack-sub"></span></header>
+      <div class="stack" id="stack"></div>
+    </section>
+  </main>
+</div>
+<div class="gaveta" id="gaveta" role="dialog" aria-label="Detalhe da task" aria-hidden="true"></div>
+
+<script>
+const ST = {
+  feita:     {nome:'feita',     cor:'var(--feita)'},
+  parcial:   {nome:'parcial',   cor:'var(--parcial)'},
+  nao_feita: {nome:'não feita', cor:'var(--nao)'},
+  revalidar: {nome:'revalidar', cor:'var(--reval)'},
+};
+const ORDEM_ST = ['feita','parcial','revalidar','nao_feita'];
+let S = null, sel = null, filtro = new Set(), vivo = true, ultimoOk = 0, assinatura = '', intro = true, erroRede = false, ajustar = true;
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const css = st => ST[st] ? ST[st].cor : 'var(--nao)';
+
+function dot(st, tam = 12) {
+  const c = css(st), r = tam / 2 - 1.2;
+  const base = `<svg width="${tam}" height="${tam}" viewBox="0 0 ${tam} ${tam}" aria-hidden="true" style="flex:none;margin-top:3px">`;
+  const m = tam / 2;
+  if (st === 'feita') return base + `<circle cx="${m}" cy="${m}" r="${r}" fill="${c}"/><path d="M${m*.55} ${m} l${m*.32} ${m*.34} l${m*.6} -${m*.7}" stroke="#0E1320" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  if (st === 'parcial') return base + `<circle cx="${m}" cy="${m}" r="${r}" fill="none" stroke="${c}" stroke-width="1.6"/><path d="M${m} ${m-r} A${r} ${r} 0 0 0 ${m} ${m+r} Z" fill="${c}"/></svg>`;
+  if (st === 'revalidar') return base + `<circle cx="${m}" cy="${m}" r="${r}" fill="none" stroke="${c}" stroke-width="1.6" stroke-dasharray="2.6 2"/></svg>`;
+  return base + `<circle cx="${m}" cy="${m}" r="${r}" fill="none" stroke="${c}" stroke-width="1.6"/></svg>`;
+}
+const frac = t => { const cs = Object.values(t.criterios); return {ok: cs.filter(c => c.atendido).length, tot: cs.length}; };
+const pct = (a, b) => b ? Math.round(100 * a / b) : 0;
+const visivel = id => !filtro.size || filtro.has(S.tasks[id].status);
+
+function proximas() {
+  return Object.entries(S.tasks).filter(([i, t]) => t.status !== 'feita' && t.depende_de.every(d => S.tasks[d] && S.tasks[d].status === 'feita')).map(([i]) => i);
+}
+function relacionadas(id) { // ancestrais e descendentes na cadeia de dependências
+  const antes = new Set(), depois = new Set();
+  const subir = x => S.tasks[x].depende_de.forEach(d => { if (S.tasks[d] && !antes.has(d)) { antes.add(d); subir(d); } });
+  const descer = x => Object.entries(S.tasks).forEach(([i, t]) => { if (t.depende_de.includes(x) && !depois.has(i)) { depois.add(i); descer(i); } });
+  subir(id); descer(id);
+  return {antes, depois};
+}
+
+/* ---------------------------------------------------------------- lateral */
+function renderLado() {
+  const r = S.resumo, cont = r.por_status;
+  const prox = proximas();
+  const julg = S.pendentes_ia || [];
+  const reval = Object.entries(S.tasks).filter(([, t]) => t.status === 'revalidar');
+  let h = `<div class="marca"><i></i>sddtrack</div>
+    <div class="proj">${esc(S.projeto || 'Projeto sem nome')}</div>
+    <div class="sync"><span class="vivo" id="vivo"></span><span id="tempo"></span></div>
+
+    <h3>Resumo</h3>
+    <dl class="kv">
+      <dt>Tasks feitas</dt><dd>${r.tasks_feitas} de ${r.tasks_total}</dd>
+      <dt>Critérios atendidos</dt><dd>${r.criterios_atendidos} de ${r.criterios_total}</dd>
+      <dt>Casos de uso completos</dt><dd>${S.casos_de_uso.filter(u => u.status === 'feita').length} de ${S.casos_de_uso.length}</dd>
+      <dt>Arquivos no projeto</dt><dd>${r.arquivos}</dd>
+      <dt>Funções, classes e rotas</dt><dd>${r.nos_de_codigo}</dd>
+    </dl>
+
+    <h3>Status das tasks</h3>`;
+  ORDEM_ST.forEach(s => {
+    h += `<button class="filtro" data-f="${s}" aria-pressed="${filtro.has(s)}">${dot(s, 14)}<span>${ST[s].nome[0].toUpperCase() + ST[s].nome.slice(1)}</span><b>${cont[s] || 0}</b></button>`;
+  });
+  h += `<h3>Podem começar agora</h3>`;
+  h += prox.length ? `<ul class="lista">${prox.slice(0, 6).map(i => `<li><button class="item" data-t="${esc(i)}">${dot(S.tasks[i].status)}<span><span class="mono">${esc(i)}</span><small>${esc(S.tasks[i].titulo)}</small></span></button></li>`).join('')}</ul>${prox.length > 6 ? `<p class="vazio">e mais ${prox.length - 6}</p>` : ''}`
+              : `<p class="vazio">${r.tasks_feitas === r.tasks_total ? 'Todas as tasks estão feitas.' : 'Nenhuma task liberada: há dependências pendentes.'}</p>`;
+
+  h += `<h3>Precisa de atenção</h3>`;
+  let atencao = '';
+  if (julg.length) atencao += `<div class="aviso v"><b>${julg.length} critério(s) aguardando julgamento.</b> Peça ao agente: <span class="mono">/atualizar</span>${julg.slice(0, 3).map(p => `<br><span class="mono">${esc(p.chave)}</span> ${esc(p.descricao)}`).join('')}</div>`;
+  if (reval.length) atencao += `<div class="aviso v"><b>${reval.length} task(s) para revalidar:</b> o código julgado mudou. ${reval.map(([i]) => esc(i)).join(', ')}</div>`;
+  (S.avisos || []).slice(0, 5).forEach(a => atencao += `<div class="aviso">${esc(a)}</div>`);
+  if (S.codigo_sem_task && S.codigo_sem_task.length) atencao += `<div class="aviso"><b>${S.codigo_sem_task.length} arquivo(s) com código sem task:</b><br>${S.codigo_sem_task.slice(0, 5).map(f => `<span class="mono">${esc(f)}</span>`).join('<br>')}${S.codigo_sem_task.length > 5 ? '<br>…' : ''}</div>`;
+  h += atencao || `<p class="vazio">Nada pendente.</p>`;
+
+  h += `<h3>Requisitos</h3><ul class="lista">`;
+  S.requisitos.forEach(q => {
+    const feitas = q.tasks.filter(i => S.tasks[i].status === 'feita').length;
+    h += `<li class="item" style="cursor:default">${dot(q.status)}<span><span class="mono">${esc(q.id)}</span> ${esc(q.titulo)}<div class="barra-fina"><i style="width:${pct(feitas, q.tasks.length)}%"></i></div></span></li>`;
+  });
+  h += `</ul>`;
+  if (S.uml && S.uml.length) {
+    h += `<h3>Elementos da UML</h3><ul class="lista">` + S.uml.map(u => `<li class="item" style="cursor:default">${dot(u.status)}<span>${esc(u.elemento || u.id)}<small>${esc(u.tipo || '')}</small></span></li>`).join('') + `</ul>`;
+  }
+  const el = $('lado'), rolagem = el.scrollTop;
+  el.innerHTML = h; el.scrollTop = rolagem;
+}
+
+/* ---------------------------------------------------------------- herói */
+function renderHeroi() {
+  const r = S.resumo, ids = Object.keys(S.tasks);
+  const grupos = S.casos_de_uso.filter(u => u.tasks.length).map(u => ({rot: u.id, ids: u.tasks}));
+  if (S.tasks_sem_caso_de_uso && S.tasks_sem_caso_de_uso.length) grupos.push({rot: 'Sem caso de uso', ids: S.tasks_sem_caso_de_uso});
+  let n = 0;
+  const seg = grupos.map(g => `<div class="grupo" style="flex:${g.ids.length} 1 ${g.ids.length * 22}px"><div class="seg">${g.ids.map(i => {
+      const t = S.tasks[i], f = frac(t), w = t.status === 'feita' || t.status === 'revalidar' ? 100 : pct(f.ok, f.tot);
+      const cls = t.status === 'revalidar' ? 'reval' : t.status === 'nao_feita' ? 'nao' : '';
+      return `<button class="s ${cls} ${sel === i ? 'sel' : ''} ${visivel(i) ? '' : 'dim'}" data-t="${esc(i)}" style="--w:${w}%;--c:${css(t.status)};--n:${n++}" title="${esc(i)} — ${esc(t.titulo)} (${ST[t.status].nome}, ${f.ok}/${f.tot} critérios)" aria-label="${esc(i)} ${esc(t.titulo)}: ${ST[t.status].nome}"><i></i></button>`;
+    }).join('')}</div><label>${esc(g.rot)}</label></div>`).join('');
+  const vazio = r.nos_de_codigo === 0 ? 'Nenhum código encontrado ainda: tudo começa como não feito.' : '';
+  $('heroi').className = 'painel heroi' + (intro ? ' intro' : '');
+  $('heroi').innerHTML = `<div><div class="pct">${Math.round(r.progresso_tasks * 100)}<small>%</small></div>
+      <p>${r.tasks_feitas} de ${r.tasks_total} tasks feitas${vazio ? '<br>' + vazio : ''}</p></div>
+    <div><div class="grupos">${seg}</div>
+      <div class="fino"><span>Critérios</span><div class="trilho"><i style="width:${Math.round(r.progresso_criterios * 100)}%"></i></div><span>${r.criterios_atendidos} de ${r.criterios_total}</span></div></div>`;
+}
+
+/* ---------------------------------------------------------------- casos de uso */
+function renderUC() {
+  const lista = S.casos_de_uso.slice();
+  if (S.tasks_sem_caso_de_uso && S.tasks_sem_caso_de_uso.length) lista.push({id: '—', titulo: 'Tasks sem caso de uso', requisitos: [], tasks: S.tasks_sem_caso_de_uso, status: 'nao_feita', feitas: 0, total: S.tasks_sem_caso_de_uso.length, sem: true});
+  $('uc-sub').textContent = `${S.casos_de_uso.filter(u => u.status === 'feita').length} de ${S.casos_de_uso.length} completos`;
+  $('ucs').innerHTML = lista.map(u => {
+    const cont = {}; u.tasks.forEach(i => cont[S.tasks[i].status] = (cont[S.tasks[i].status] || 0) + 1);
+    const pilha = ORDEM_ST.filter(s => cont[s]).map(s => `<i style="width:${pct(cont[s], u.tasks.length)}%;background:${css(s)}${s === 'nao_feita' ? ';opacity:.0' : ''}"></i>`).join('');
+    const feitas = cont.feita || 0;
+    return `<article class="uc ${u.tasks.some(visivel) || !filtro.size ? '' : 'dim'}" style="--c:${css(u.status)}">
+      <div class="cab"><div><h3>${esc(u.titulo)}</h3><div class="mut mono">${esc(u.id)}</div></div><div class="n">${feitas}<small>/${u.tasks.length}</small></div></div>
+      <div class="reqs mono">${(u.requisitos || []).map(q => `<span>${esc(q)}</span>`).join('')}</div>
+      <div class="pilha" aria-hidden="true">${pilha}</div>
+      ${u.tasks.map(i => { const t = S.tasks[i], f = frac(t);
+        return `<button class="tl ${sel === i ? 'sel' : ''} ${visivel(i) ? '' : 'dim'}" data-t="${esc(i)}">${dot(t.status)}<span class="mono">${esc(i)}</span><span>${esc(t.titulo)}</span><em>${f.ok}/${f.tot}</em></button>`;
+      }).join('') || '<p class="vazio">Nenhuma task neste caso de uso.</p>'}
+    </article>`;
+  }).join('') || '<p class="vazio">Nenhum caso de uso na especificação.</p>';
+}
+
+/* ---------------------------------------------------------------- grafo */
+const NW = 178, NH = 54, GX = 46, GY = 18, PAD = 14;
+function layout(ids) {
+  const prof = {};
+  const calc = (id, vis = new Set()) => {
+    if (prof[id] != null) return prof[id];
+    if (vis.has(id)) return 0;
+    vis.add(id);
+    let m = -1;
+    S.tasks[id].depende_de.forEach(d => { if (S.tasks[d]) m = Math.max(m, calc(d, vis)); });
+    return prof[id] = m + 1;
+  };
+  ids.forEach(i => calc(i));
+  const cam = [];
+  ids.forEach(i => (cam[prof[i]] = cam[prof[i]] || []).push(i));
+  const idx = Object.fromEntries(ids.map((i, k) => [i, k])), pos = {};
+  cam.forEach(c => c.forEach((i, k) => pos[i] = k));
+  const media = (i, vizinhos) => { const v = vizinhos(i).map(x => pos[x]).filter(x => x != null); return v.length ? v.reduce((a, b) => a + b, 0) / v.length : pos[i]; };
+  const pais = i => S.tasks[i].depende_de.filter(d => S.tasks[d]);
+  const filhos = i => ids.filter(o => S.tasks[o].depende_de.includes(i));
+  for (let p = 0; p < 5; p++) {
+    for (let l = 1; l < cam.length; l++) { cam[l].sort((a, b) => media(a, pais) - media(b, pais) || idx[a] - idx[b]); cam[l].forEach((i, k) => pos[i] = k); }
+    for (let l = cam.length - 2; l >= 0; l--) { cam[l].sort((a, b) => media(a, filhos) - media(b, filhos) || idx[a] - idx[b]); cam[l].forEach((i, k) => pos[i] = k); }
+  }
+  const linhas = Math.max(...cam.map(c => c.length));
+  const xy = {};
+  cam.forEach((c, l) => c.forEach((i, k) => xy[i] = {x: PAD + l * (NW + GX), y: PAD + ((linhas - c.length) / 2 + k) * (NH + GY)}));
+  return {xy, w: PAD * 2 + cam.length * NW + (cam.length - 1) * GX, h: PAD * 2 + linhas * NH + (linhas - 1) * GY};
+}
+function renderGrafo() {
+  const ids = Object.keys(S.tasks);
+  if (!ids.length) { $('grafo').innerHTML = '<p class="vazio" style="padding:14px">Nenhuma task na especificação.</p>'; return; }
+  const {xy, w, h} = layout(ids);
+  const rel = sel ? relacionadas(sel) : null;
+  let arestas = '', nos = '';
+  ids.forEach(i => S.tasks[i].depende_de.forEach(d => {
+    if (!xy[d]) return;
+    const a = xy[d], b = xy[i], x1 = a.x + NW, y1 = a.y + NH / 2, x2 = b.x, y2 = b.y + NH / 2, k = (x2 - x1) * .5;
+    const hl = sel && (i === sel || d === sel || (rel.antes.has(i) && (rel.antes.has(d) || d === sel)) || (rel.depois.has(d) && (rel.depois.has(i) || i === sel)));
+    const dimmed = sel && !hl;
+    arestas += `<path class="aresta ${S.tasks[d].status === 'feita' ? 'ok' : ''} ${hl ? 'hl' : ''}" style="${dimmed ? 'opacity:.18' : ''}" d="M${x1} ${y1} C${x1 + k} ${y1}, ${x2 - k} ${y2}, ${x2} ${y2}"/>`;
+  }));
+  ids.forEach(i => {
+    const t = S.tasks[i], p = xy[i], f = frac(t), cls = {feita: 'feita', parcial: 'parcial', nao_feita: 'nao', revalidar: 'reval'}[t.status];
+    const fora = (sel && !(i === sel || rel.antes.has(i) || rel.depois.has(i))) || !visivel(i);
+    const titulo = t.titulo.length > 24 ? t.titulo.slice(0, 23) + '…' : t.titulo;
+    const larg = t.status === 'feita' || t.status === 'revalidar' ? NW - 2 : (NW - 2) * (f.tot ? f.ok / f.tot : 0);
+    nos += `<g class="no ${cls} ${sel === i ? 'sel' : ''}" data-t="${esc(i)}" transform="translate(${p.x} ${p.y})" tabindex="0" role="button" aria-label="${esc(i)} ${esc(t.titulo)}: ${ST[t.status].nome}" style="--c:${css(t.status)};${fora ? 'opacity:.25' : ''}">
+      <title>${esc(i)} — ${esc(t.titulo)} (${ST[t.status].nome}, ${f.ok}/${f.tot} critérios)</title>
+      <rect class="cx" width="${NW}" height="${NH}" rx="8"/>
+      <rect x="1" y="${NH - 5}" width="${Math.max(larg, 0)}" height="4" rx="2" fill="${css(t.status)}" opacity=".9"/>
+      <text class="id" x="12" y="19">${esc(i)}</text>
+      <text class="id" x="${NW - 12}" y="19" text-anchor="end">${f.ok}/${f.tot}</text>
+      <text class="t" x="12" y="37">${esc(titulo)}</text></g>`;
+  });
+  const wrap = $('grafo'), sx = wrap.scrollLeft, sy = wrap.scrollTop;
+  wrap.innerHTML = `<svg viewBox="0 0 ${w} ${h}" ${ajustar ? `style="width:100%;max-width:${w}px;height:auto"` : `width="${w}" height="${h}"`} role="group" aria-label="Grafo de dependências entre tasks">${arestas}${nos}</svg>`;
+  wrap.scrollLeft = sx; wrap.scrollTop = sy;
+  $('legenda').innerHTML = ORDEM_ST.map(s => `<span>${dot(s, 13)}${ST[s].nome}</span>`).join('') +
+    `<span style="margin-left:auto"><button class="btn" id="btnAjustar" aria-pressed="${ajustar}" style="padding:3px 10px">${ajustar ? 'Tamanho real' : 'Ajustar à largura'}</button></span>`;
+}
+
+/* ---------------------------------------------------------------- stack */
+function renderStack() {
+  const g = (S.stack || []).filter(x => x.itens.length);
+  $('stack-sub').textContent = g.length ? `${g.reduce((n, x) => n + x.itens.length, 0)} tecnologias em ${g.length} camadas` : '';
+  $('stack').innerHTML = g.length ? g.map(x => `<div><h3>${esc(x.camada)}</h3><ul>${x.itens.map(i => `<li><b>${esc(i.nome)}</b>${i.uso ? `<small>${esc(i.uso)}</small>` : ''}</li>`).join('')}</ul></div>`).join('')
+    : `<p class="vazio">A stack ainda não foi descrita. Adicione a seção <span class="mono">stack:</span> ao manifesto em <span class="mono">spec/</span>.</p>`;
+}
+
+/* ---------------------------------------------------------------- gaveta */
+function renderGaveta() {
+  const g = $('gaveta');
+  g.classList.toggle('on', !!sel); g.setAttribute('aria-hidden', String(!sel));
+  if (!sel || !S.tasks[sel]) { if (sel) sel = null; g.innerHTML = ''; return; }
+  const t = S.tasks[sel], uc = S.casos_de_uso.find(u => u.id === t.caso_de_uso);
+  const libera = Object.entries(S.tasks).filter(([, o]) => o.depende_de.includes(sel)).map(([i]) => i);
+  const linkT = i => `<button class="item" data-t="${esc(i)}">${dot(S.tasks[i].status)}<span><span class="mono">${esc(i)}</span> ${esc(S.tasks[i].titulo)}</span></button>`;
+  const pend = t.depende_de.filter(d => S.tasks[d] && S.tasks[d].status !== 'feita');
+  g.innerHTML = `<button class="fechar" id="fechar" aria-label="Fechar detalhe">✕</button>
+    <div class="mono mut">${esc(sel)}${uc ? ' · ' + esc(uc.titulo) : ''}</div>
+    <h2>${esc(t.titulo)}</h2>
+    <span class="chip" style="--c:${css(t.status)}">${dot(t.status, 12)}${ST[t.status].nome}</span>
+    ${pend.length ? `<div class="aviso" style="margin-top:14px"><b>Antes desta task:</b> ${pend.map(esc).join(', ')} ainda não está feita.</div>` : ''}
+    <h4>Critérios de aceite</h4>
+    ${Object.entries(t.criterios).map(([cid, c]) => `<div class="crit">${dot(c.revalidar ? 'revalidar' : c.atendido ? 'feita' : 'nao_feita', 15)}<div>
+        <span class="mono mut">${esc(cid)}</span> ${esc((t.descricoes || {})[cid] || '')}${c.revalidar ? '<span class="tag">revalidar</span>' : ''}${c.origem === 'manual' ? '<span class="tag" style="background:#26304a;color:var(--mut)">julgado pelo agente</span>' : ''}
+        ${(c.evidencia || []).map(e => `<span class="ev mono">↳ ${esc(e.no)}</span>`).join('')}
+        ${c.justificativa ? `<span class="j">${esc(c.justificativa)}</span>` : ''}</div></div>`).join('')}
+    <h4>Depende de</h4>${t.depende_de.length ? `<ul class="lista">${t.depende_de.filter(d => S.tasks[d]).map(d => `<li>${linkT(d)}</li>`).join('')}</ul>` : '<p class="vazio">Nenhuma dependência.</p>'}
+    <h4>Libera</h4>${libera.length ? `<ul class="lista">${libera.map(d => `<li>${linkT(d)}</li>`).join('')}</ul>` : '<p class="vazio">Nenhuma task depende desta.</p>'}
+    ${t.status !== 'feita' ? `<div class="dica">Para trabalhar nesta task, peça ao agente: <code>/ir ${esc(sel)}</code></div>` : ''}`;
+}
+
+/* ---------------------------------------------------------------- geral */
+function renderBanner(erro) {
+  let h = '';
+  if (erro && erro.erro_spec) h = `<div class="banner"><b>A especificação tem erros.</b> Corrija o manifesto; o painel mostra o último estado válido.<ul>${erro.erro_spec.map(e => `<li>${esc(e)}</li>`).join('')}</ul></div>`;
+  else if (erro && erro.erro) h = `<div class="banner"><b>Não foi possível analisar o projeto.</b> ${esc(erro.erro)}</div>`;
+  else if (erroRede) h = location.protocol === 'file:'
+    ? `<div class="banner"><b>Abra o painel pelo servidor local.</b> Rode <code>python3 harness.py painel</code> na raiz do workspace.</div>`
+    : `<div class="banner"><b>Sem conexão com o harness.</b> Confira se <code>python3 harness.py painel</code> continua rodando.</div>`;
+  $('banner').innerHTML = h;
+}
+function renderTempo() {
+  const v = $('vivo'), t = $('tempo');
+  if (!v || !t) return;
+  const s = Math.max(0, Math.round((Date.now() - ultimoOk) / 1000));
+  v.className = 'vivo ' + (erroRede ? 'off' : vivo ? 'on' : '');
+  t.textContent = erroRede ? 'Sem conexão' : `Verificado há ${s} s${vivo ? '' : ' (pausado)'}`;
+}
+function render() {
+  if (!S) return;
+  $('titulo').textContent = S.projeto || 'Painel do projeto';
+  $('subtitulo').textContent = `Especificação × código · análise de ${S.ultimo_sync.replace('T', ' às ')}`;
+  renderLado(); renderHeroi(); renderUC(); renderGrafo(); renderStack(); renderGaveta(); renderTempo();
+  intro = false;
+}
+function aplicar(d) {
+  if (d.erro_spec || d.erro) { renderBanner(d); if (!S) $('subtitulo').textContent = 'Sem dados para exibir'; return; }
+  renderBanner(null);
+  const a = JSON.stringify(d);
+  if (a === assinatura) return;
+  assinatura = a; S = d; render();
+}
+async function carregar(forcar) {
+  try {
+    const r = await fetch('/api/status' + (forcar ? '?forcar=1' : ''), {cache: 'no-store'});
+    const d = await r.json();
+    erroRede = false; ultimoOk = Date.now(); aplicar(d);
+  } catch (e) { erroRede = true; renderBanner(null); }
+  renderTempo();
+}
+function selecionar(id) { sel = (sel === id) ? null : id; if (S) { renderHeroi(); renderUC(); renderGrafo(); renderGaveta(); } }
+
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-t]'); if (t) { selecionar(t.dataset.t); return; }
+  const f = e.target.closest('[data-f]');
+  if (f) { filtro.has(f.dataset.f) ? filtro.delete(f.dataset.f) : filtro.add(f.dataset.f); render(); return; }
+  if (e.target.closest('#fechar')) { sel = null; render(); return; }
+  if (e.target.closest('#btnAjustar')) { ajustar = !ajustar; renderGrafo(); }
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && sel) { sel = null; render(); }
+  const g = e.target.closest && e.target.closest('g.no');
+  if (g && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); selecionar(g.dataset.t); }
+});
+$('btnVivo').addEventListener('click', e => { vivo = !vivo; e.currentTarget.setAttribute('aria-pressed', vivo); renderTempo(); if (vivo) carregar(); });
+$('btnAtualizar').addEventListener('click', () => carregar(true));
+setInterval(() => { if (vivo) carregar(); }, 4000);
+setInterval(renderTempo, 1000);
+carregar();
+</script>
+</body>
+</html>
