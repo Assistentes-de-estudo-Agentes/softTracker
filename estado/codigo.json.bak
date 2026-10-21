@@ -5,7 +5,203 @@
       "tipo": "arquivo",
       "nome": ".gitkeep",
       "hash": "e3b0c44298fc1c14"
+    },
+    "projeto-tarefas-spring/pom.xml": {
+      "arquivo": "projeto-tarefas-spring/pom.xml",
+      "tipo": "arquivo",
+      "nome": "projeto-tarefas-spring/pom.xml",
+      "hash": "573767af700b0859"
+    },
+    "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/TarefaApplication.java": {
+      "arquivo": "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/TarefaApplication.java",
+      "tipo": "arquivo",
+      "nome": "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/TarefaApplication.java",
+      "hash": "491242f5e99e2426"
+    },
+    "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/TarefaApplication.java::classe:TarefaApplication": {
+      "arquivo": "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/TarefaApplication.java",
+      "tipo": "classe",
+      "nome": "TarefaApplication",
+      "ini": 7,
+      "fim": 7,
+      "hash": "8c20bccf431bb875"
+    },
+    "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/TarefaApplication.java::funcao:main": {
+      "arquivo": "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/TarefaApplication.java",
+      "tipo": "funcao",
+      "nome": "main",
+      "ini": 8,
+      "fim": 11,
+      "hash": "e6e2948b72519dab"
+    },
+    "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/controller/TarefaController.java": {
+      "arquivo": "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/controller/TarefaController.java",
+      "tipo": "arquivo",
+      "nome": "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/controller/TarefaController.java",
+      "hash": "9f6e7efec70b4910"
+    },
+    "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/controller/TarefaController.java::classe:TarefaController": {
+      "arquivo": "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/controller/TarefaController.java",
+      "tipo": "classe",
+      "nome": "TarefaController",
+      "ini": 13,
+      "fim": 15,
+      "hash": "3e6daba53a906f0c"
+    },
+    "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/controller/TarefaController.java::funcao:TarefaController": {
+      "arquivo": "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/controller/TarefaController.java",
+      "tipo": "funcao",
+      "nome": "TarefaController",
+      "ini": 16,
+      "fim": 20,
+      "hash": "51adfd272b6ac3f7"
+    },
+    "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/controller/TarefaController.java::funcao:listarTodas": {
+      "arquivo": "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/controller/TarefaController.java",
+      "tipo": "funcao",
+      "nome": "listarTodas",
+      "ini": 21,
+      "fim": 26,
+      "hash": "7c5eb6ae7e2bb45e"
+    },
+    "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/controller/TarefaController.java::funcao:criar": {
+      "arquivo": "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/controller/TarefaController.java",
+      "tipo": "funcao",
+      "nome": "criar",
+      "ini": 27,
+      "fim": 34,
+      "hash": "aa9277bf1cbb2f05"
+    },
+    "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/model/Tarefa.java": {
+      "arquivo": "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/model/Tarefa.java",
+      "tipo": "arquivo",
+      "nome": "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/model/Tarefa.java",
+      "hash": "d4c5e961a504be52"
+    },
+    "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/model/Tarefa.java::classe:Tarefa": {
+      "arquivo": "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/model/Tarefa.java",
+      "tipo": "classe",
+      "nome": "Tarefa",
+      "ini": 5,
+      "fim": 13,
+      "hash": "9d295e6fc2fa0776"
+    },
+    "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/model/Tarefa.java::funcao:Tarefa": {
+      "arquivo": "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/model/Tarefa.java",
+      "tipo": "funcao",
+      "nome": "Tarefa",
+      "ini": 14,
+      "fim": 16,
+      "hash": "6245196aaa2cf83d"
+    },
+    "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/model/Tarefa.java::funcao:Tarefa#2": {
+      "arquivo": "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/model/Tarefa.java",
+      "tipo": "funcao",
+      "nome": "Tarefa",
+      "ini": 17,
+      "fim": 23,
+      "hash": "d5a0e5302b4199bd"
+    },
+    "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/model/Tarefa.java::funcao:getId": {
+      "arquivo": "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/model/Tarefa.java",
+      "tipo": "funcao",
+      "nome": "getId",
+      "ini": 24,
+      "fim": 27,
+      "hash": "c4a72c85c4240369"
+    },
+    "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/model/Tarefa.java::funcao:setId": {
+      "arquivo": "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/model/Tarefa.java",
+      "tipo": "funcao",
+      "nome": "setId",
+      "ini": 28,
+      "fim": 31,
+      "hash": "79f22935344271a0"
+    },
+    "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/model/Tarefa.java::funcao:getTitulo": {
+      "arquivo": "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/model/Tarefa.java",
+      "tipo": "funcao",
+      "nome": "getTitulo",
+      "ini": 32,
+      "fim": 35,
+      "hash": "640fd7786ead34d7"
+    },
+    "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/model/Tarefa.java::funcao:setTitulo": {
+      "arquivo": "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/model/Tarefa.java",
+      "tipo": "funcao",
+      "nome": "setTitulo",
+      "ini": 36,
+      "fim": 39,
+      "hash": "98f8cbdb1dc42db9"
+    },
+    "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/model/Tarefa.java::funcao:getDescricao": {
+      "arquivo": "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/model/Tarefa.java",
+      "tipo": "funcao",
+      "nome": "getDescricao",
+      "ini": 40,
+      "fim": 43,
+      "hash": "8b662b6cf154bfab"
+    },
+    "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/model/Tarefa.java::funcao:setDescricao": {
+      "arquivo": "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/model/Tarefa.java",
+      "tipo": "funcao",
+      "nome": "setDescricao",
+      "ini": 44,
+      "fim": 47,
+      "hash": "b700728362753a4f"
+    },
+    "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/model/Tarefa.java::funcao:isConcluida": {
+      "arquivo": "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/model/Tarefa.java",
+      "tipo": "funcao",
+      "nome": "isConcluida",
+      "ini": 48,
+      "fim": 51,
+      "hash": "52ce7c004bce832b"
+    },
+    "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/model/Tarefa.java::funcao:setConcluida": {
+      "arquivo": "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/model/Tarefa.java",
+      "tipo": "funcao",
+      "nome": "setConcluida",
+      "ini": 52,
+      "fim": 55,
+      "hash": "a6a1af0f6011740e"
+    },
+    "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/service/TarefaService.java": {
+      "arquivo": "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/service/TarefaService.java",
+      "tipo": "arquivo",
+      "nome": "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/service/TarefaService.java",
+      "hash": "957d79b47ee1891d"
+    },
+    "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/service/TarefaService.java::classe:TarefaService": {
+      "arquivo": "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/service/TarefaService.java",
+      "tipo": "classe",
+      "nome": "TarefaService",
+      "ini": 10,
+      "fim": 13,
+      "hash": "a4a2cd5d879bf13b"
+    },
+    "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/service/TarefaService.java::funcao:listarTodas": {
+      "arquivo": "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/service/TarefaService.java",
+      "tipo": "funcao",
+      "nome": "listarTodas",
+      "ini": 14,
+      "fim": 17,
+      "hash": "45f9c2ac4837536d"
+    },
+    "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/service/TarefaService.java::funcao:criar": {
+      "arquivo": "projeto-tarefas-spring/src/main/java/br/com/exemplo/tarefas/service/TarefaService.java",
+      "tipo": "funcao",
+      "nome": "criar",
+      "ini": 18,
+      "fim": 28,
+      "hash": "597d32762a78897d"
+    },
+    "projeto-tarefas-spring/src/main/resources/application.yml": {
+      "arquivo": "projeto-tarefas-spring/src/main/resources/application.yml",
+      "tipo": "arquivo",
+      "nome": "projeto-tarefas-spring/src/main/resources/application.yml",
+      "hash": "bb8172f1f1bdf8b0"
     }
   },
-  "fp": "1fa117f8d41d6032"
+  "fp": "018f20c147ee7cb1"
 }
